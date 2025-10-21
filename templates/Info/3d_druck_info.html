@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Druck | Engineering Solutions</title>
+
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/3d_druck_info.css') }}"> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}">
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <img src="{{ url_for('static', filename='images/LogoDrei_D.png') }}" alt="Logo">
+          <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Projekte</a>
+            <a href="#">Weiteres</a>
+            <a href="#" class="active">Info</a>
+          </div>
+        </div>
+        <div class="search-container">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Nach Schwerpunkten suchen">
+          </div>
+          <button class="shop-btn open-chat-btn">AI-Assistent</button>
+
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-content">
+      <h1>Info: <br> 3D Druck</h1>
+      <p>Innovative Lösungen für den 3D-Druck mit modernster Technologie und höchster Präzision</p>
+      <a href="#" class="hero-btn">Mehr entdecken</a>
+    </div>
+  </section>
+
+  <!-- Image Slider -->
+  <section class="slider-section">
+    <div class="container">
+      <div class="slider-container">
+        <div class="image-slider">
+          <div class="slide">
+            <img src="{{ url_for('static', filename='images/bild3.jpg') }}" alt="3D Druck Beispiel 1">
+          </div>
+          <div class="slide">
+            <img src="{{ url_for('static', filename='images/3dpic_1.jpg') }}" alt="3D Druck Beispiel 2">
+          </div>
+          <div class="slide">
+            <img src="{{ url_for('static', filename='images/3dpic_2.jpg') }}" alt="3D Drucker">
+          </div>
+          <div class="slide">
+            <img src="{{ url_for('static', filename='images/3dpic_3.jpg') }}" alt="3D Druck Materialien">
+          </div>
+          <div class="slide">
+            <img src="{{ url_for('static', filename='images/3dpic_1.jpg') }}" alt="3D gedruckte Objekte">
+          </div>
+        </div>
+        <div class="slider-controls">
+          <button class="slider-arrow prev-arrow">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="slider-arrow next-arrow">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+      <div class="slider-dots"></div>
+    </div>
+  </section>
+
+  <!-- Info Section -->
+  <section class="info-section">
+    <div class="container">
+      <div class="info-grid">
+        <div class="info-card animate-in">
+          <img src="{{ url_for('static', filename='images/3dpic_1.jpg') }}" alt="FDM 3D Druck">
+          <div class="info-content">
+            <h3>FDM Technologie</h3>
+            <p>Fused Deposition Modeling (FDM) ist ein additives Fertigungsverfahren, bei dem Materialien schichtweise aufgetragen werden, um präzise 3D-Objekte zu erstellen.</p>
+            <a href="#" class="info-link">Mehr erfahren <span>&rarr;</span></a>
+          </div>
+        </div>
+        
+        <div class="info-card animate-in delay-1">
+          <img src="{{ url_for('static', filename='images/3dpic_2.jpg') }}" alt="SLA 3D Druck">
+          <div class="info-content">
+            <h3>SLA Technologie</h3>
+            <p>Stereolithographie (SLA) verwendet einen Laser, um flüssiges Harz auszuhärten und Schicht für Schicht hochpräzise 3D-Modelle zu erzeugen.</p>
+            <a href="#" class="info-link">Mehr erfahren <span>&rarr;</span></a>
+          </div>
+        </div>
+        
+        <div class="info-card animate-in delay-2">
+          <img src="{{ url_for('static', filename='images/3dpic_3.jpg') }}" alt="3D Druck Materialien">
+          <div class="info-content">
+            <h3>Materialvielfalt</h3>
+            <p>Von Standard-PLA über flexibles TPU bis hin zu technischen Materialien wie PEEK – wir bieten eine große Auswahl an 3D-Druckmaterialien für Ihre Anwendung.</p>
+            <a href="#" class="info-link">Mehr erfahren <span>&rarr;</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>Über uns</h3>
+          <p>Wir sind vier Schüler der 4aWM-2024/25, die im Rahmen der 5 jährigen "Industrial Engineering and Management" Ausbildung an der HTL Dornbirn reichlich an Fachkenntnissen gesammelt haben und diese in diesem Projekt anwenden.
+          </p>
+        </div>
+        <div class="footer-column">
+          <h3>Schwerpunkte</h3>
+          <ul class="footer-links">
+            <li><a href="#"><i class="fas fa-chevron-right"></i> FDM 3D Druck</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i> SLA/SLS Druck</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i> CAD Design</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i> Prototyping</a></li>
+            <li><a href="#"><i class="fas fa-chevron-right"></i> Kleinserienfertigung</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-column">
+          <h3>Kontakt</h3>
+          <ul class="footer-links">
+            <li><a href="#"><i class="fas fa-envelope"></i> mehmet.saygin@student.htldornbirn.com</a></li>
+            <li><a href="#"><i class="fas fa-phone"></i> +43 999 99999</a></li>
+            <li><a href="#"><i class="fas fa-map-marker-alt"></i> Höchsterstraße 73, 6850 Dornbirn</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="copyright">
+         2025 Mechanical Engineering HTLDO Students Group.
+      </div>
+    </div>
+  </footer>
+
+<div id="chat-modal" class="chat-modal">
+  <div class="chat-header">
+    Diplomarbeit Chatbot
+    <span id="chat-close" class="chat-close">&times;</span>
+  </div>
+  <div id="chat-box" class="chat-box"></div>
+  <div class="input-area">
+    <input type="text" id="user-input" placeholder="Stellen Sie Ihre Frage..." />
+    <button id="send-btn">Senden</button>
+  </div>
+</div>
+
+
+<script src="{{ url_for('static', filename='js/ai_assistent_modal.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/3d_druck_info.js') }}" defer></script> 
+
+</body>
+</html>

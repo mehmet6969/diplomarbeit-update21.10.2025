@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CAD Projekte | IEM</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cad_projekte.css') }}">
+
+  <!-- Libs -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+  <div class="grid-bg"></div>
+
+  <nav id="navbar">
+    <div class="nav-content">
+      <div class="logo">📐 IEM</div>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('home') }}" class="nav-link">Home</a></li>
+        <li><a href="{{ url_for('cad_projekte') }}" class="nav-link active">Projekte</a></li>
+        <li><a href="{{ url_for('cad_info') }}" class="nav-link">Info</a></li>
+        <li><a href="{{ url_for('ueber_uns_info') }}" class="nav-link">Weiteres</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div id="root"></div>
+
+  <script type="text/babel" src="{{ url_for('static', filename='js/cad_projekte.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/cad_projekte_animations.js') }}"></script>
+</body>
+</html>

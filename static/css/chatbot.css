@@ -1,0 +1,104 @@
+.chat-modal {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 400px;
+  max-width: 100%;
+  height: 600px;
+  background-color: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9999;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* sichtbar, wenn open-Klasse gesetzt */
+.chat-modal.open {
+  display: flex;
+}
+
+/* Header */
+.chat-modal .chat-header {
+  background-color: var(--primary);
+  color: var(--white);
+  padding: 15px;
+  font-size: 1.2em;
+  text-align: center;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Schließen-Button im Header */
+.chat-modal .chat-close {
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* Nachrichtenbereich */
+.chat-modal .chat-box {
+  flex: 1;
+  padding: 20px;
+  background-color: #fafafa;
+  overflow-y: auto;
+}
+
+/* einzelne Nachrichten */
+.chat-modal .message {
+  margin-bottom: 15px;
+  display: flex;
+}
+.chat-modal .message.user {
+  justify-content: flex-end;
+}
+.chat-modal .message.bot {
+  justify-content: flex-start;
+}
+
+/* Nachrichten-Bubble */
+.chat-modal .message-content {
+  padding: 10px 15px;
+  border-radius: 15px;
+  max-width: 70%;
+}
+.chat-modal .message.user .message-content {
+  background-color: var(--primary);
+  color: var(--white);
+  border-bottom-right-radius: 0;
+}
+.chat-modal .message.bot .message-content {
+  background-color: #e2e2e2;
+  color: #000;
+  border-bottom-left-radius: 0;
+}
+
+/* Eingabebereich */
+.chat-modal .input-area {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid var(--gray);
+}
+.chat-modal #user-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--gray);
+  border-radius: 4px;
+  outline: none;
+}
+.chat-modal #send-btn {
+  margin-left: 10px;
+  padding: 10px 20px;
+  border: none;
+  background-color: var(--primary);
+  color: var(--white);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color var(--transition);
+}
+.chat-modal #send-btn:hover {
+  background-color: var(--primary-dark);
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D-Druck Projekte | IEM</title>
+    
+    <link rel="stylesheet" href="../../static/css/3d_druck_projekte.css">
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+    <nav id="navbar">
+        <div class="nav-content">
+            <div class="logo">
+                🖨️ IEM
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="nav-link">Home</a></li>
+                <li><a href="#" class="nav-link active">Projekte</a></li>
+                <li><a href="#" class="nav-link">Info</a></li>
+                <li><a href="#" class="nav-link">Weiteres</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div id="root"></div>
+
+    <script type="text/babel" src="../../static/js/3d_druck_projekte_animations.js"></script>
+    <script type="text/babel" src="../../static/js/3d_druck_projekte.js"></script>
+</body>
+</html>

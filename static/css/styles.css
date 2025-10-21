@@ -1,0 +1,594 @@
+body {
+  margin: 0;
+  max-width: 1920px; /* Maximale Breite des Videos */
+  margin: 0 auto; /* Zentriere den gesamten Body */
+  font-family:  -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #ffffff;
+  text-align: center;
+}
+html, body {
+  overflow-x: hidden; /* Verhindert horizontales Scrollen */
+  margin: 0; /* Verhindert ungewollte Lücken */
+  padding: 0;
+}
+h1 {
+  color: #333;
+}
+
+#Logonr1 {
+  width: 950px;
+  height: auto;
+}   
+
+  /* Ab hier, also ab graues Rechteck ganz oben ; Alles außer Drehen, Logo Video ab jetzt CSS 
+  Jetzt für grauen Teil oben */
+
+  
+  
+  /* Header-Bereich */
+  header {
+      background-color: #e2e2e0; /* Helles Grau */
+      padding: 10px 20px; /* Innenabstand für etwas Platz */
+     /* box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); /* Leichter Schatten, hab es weggemacht weil ugly und nicht wie bei Apple */ 
+  }
+  
+  /* Navigation im Header */
+  header nav {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;  /* Home links, Impressum rechts, dazwischen gleichmäßig verteilt */
+      align-items: center;
+      padding: 0 20px;  /* Abstand zum Rand */
+  }
+  
+  /* Links im Header */
+  header nav a {
+      display: flex;
+      flex-direction: column;   /* Text oben, Logo unten */
+      align-items: center;        /* Inhalt in jedem Link zentriert, unabhängig von Logo-Größe */
+      text-decoration: none;
+      color: #000;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: bold;
+      font-size: 18px;            /* Fixe Schriftgröße, unabhängig vom Logo */
+      transition: background-color 0.3s, color 0.3s;
+      /* Optional: Füge hier zusätzlichen horizontalen Innenabstand hinzu, falls gewünscht */
+      padding: 5px 10px;
+  }
+  
+  /* Hauptinhalt */
+  main {
+      padding: 20px;
+  }
+
+  .container {
+      max-width: 1920px; /* Gleiche maximale Breite wie das Video */
+      margin: 0 auto; /* Zentriere die gesamte Seite */
+      padding: 0; /* Optional: Padding für die Seitenränder */
+
+      
+  }
+  .image-grid {
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          flex-wrap: wrap;
+          gap: 20px; /* Abstand zwischen den Bildern */
+          padding: 40px 20px;
+          background-color: #f8f8f8;
+      }
+
+      .image-grid .image-card {
+          width: calc(100% / 3 - 40px); /* Drei Bilder nebeneinander, anpassbar */
+          max-width: 300px; /* Maximalbreite für schmale Bildschirme */
+          background-color: white;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          text-align: center;
+      }
+
+      .image-grid img {
+          width: 100%;
+          height: auto;
+          display: block;
+      }
+
+      .image-card h3 {
+          padding: 10px 0;
+          margin: 0;
+          font-size: 18px;
+          font-weight: bold;
+      }
+
+      .image-card p {
+          padding: 0 10px 10px;
+          color: #666;
+          font-size: 14px;
+      }
+
+
+
+      .image-grid {
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          flex-wrap: wrap;
+          gap: 20px; /* Abstand zwischen den Bildern */
+          padding: 40px 20px;
+          background-color: #f8f8f8;
+      }
+
+      .image-grid .image-card {
+          width: calc(100% / 3 - 40px); /* Drei Bilder nebeneinander, anpassbar */
+          max-width: 300px; /* Maximalbreite für schmale Bildschirme */
+          background-color: white;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          text-align: center;
+      }
+
+      .image-grid img {
+          width: 100%;
+          height: auto;
+          display: block;
+      }
+
+      .image-card h3 {
+          padding: 10px 0;
+          margin: 0;
+          font-size: 18px;
+          font-weight: bold;
+      }
+
+      .image-card p {
+          padding: 0 10px 10px;
+          color: #666;
+          font-size: 14px;
+      }
+
+          /* Scroll Animation für die 5 Bilder */
+          .horizontal-scroll {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            padding: 20px;
+            scroll-snap-type: x mandatory;
+            scroll-padding: 20px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .horizontal-scroll::-webkit-scrollbar {
+            display: none;
+          }
+          
+          /* Container für die Modul-Karten */
+          .scroll-container {
+            display: flex;
+            gap: 20px;
+          }
+          
+          /* Zentrierung für den unteren Container */
+          .scroll-container.centered {
+            justify-content: center;
+          }
+          
+          /* Modul-Karten */
+          .scroll-item {
+            flex: 0 0 auto;
+            width: 325px;
+            scroll-snap-align: start;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+          }
+          .scroll-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-bottom: 1px solid #ddd;
+          }
+          .scroll-item:hover {
+            transform: scale(1.075);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+          }
+          .scroll-item h3 {
+            margin: 10px;
+            font-size: 18px;
+            color: #333;
+          }
+          .scroll-item p {
+            margin: 10px;
+            font-size: 14px;
+            color: #666;
+          }
+          
+
+          
+ /* Overlay des Modals */
+.modal {
+  display: none; 
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Sanfter, halbtransparenter Overlay */
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Container des Modals */
+.modal-content {
+  background: #fff;
+  border-radius: 10px;
+  width: 80vw;             /* 80% der Viewport-Breite */
+  max-width: 800px;        /* Maximale Breite */
+  max-height: 80vh;        /* Maximale Höhe: 80% des Viewports */
+  overflow-y: auto;        /* Vertikales Scrollen, wenn der Inhalt zu hoch ist */
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  position: relative;      /* Für den Close-Button */
+}
+
+/* Layout für den Inhalt des Modals (zweispaltig) */
+.modal-body {
+  display: flex;
+  gap: 20px;
+}
+
+/* Linke Spalte: Bild */
+.modal-image {
+  flex: 1 1 40%;
+}
+.modal-image img {
+  width: 100%;
+  height: 500px;           /* Feste Höhe für alle Modal-Bilder */
+  object-fit: cover;       /* Schneidet das Bild zu, damit es den Container ausfüllt */
+  border-radius: 5px;
+}
+
+/* Rechte Spalte: Text */
+.modal-text-container {
+  flex: 1 1 60%;
+}
+.modal-text {
+  background-color: #f0f0f0;  /* Helles, weiches Grau */
+  border: 1px solid #ccc;     /* Feiner, grauer Rahmen */
+  border-radius: 10px;        /* Abgerundete Ecken */
+  padding: 15px;              /* Innenabstand */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Leichter Schatten */
+  margin-bottom: 10px;
+}
+.modal-text h2 {
+  font-size: 1.8em;
+  margin-bottom: 10px;
+  color: #222;
+}
+.modal-text p {
+  font-size: 1em;
+  line-height: 1.5;
+  color: #555;
+}
+
+/* Container für die Links */
+.modal-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  background: #fff;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+.modal-link {
+  background-color: #f0f0f0;  /* Weiches Grau */
+  border: 1px solid #ccc;     /* Feiner, grauer Rahmen */
+  border-radius: 50px;        /* Ovaler Look */
+  padding: 10px 20px;
+  text-decoration: none;
+  color: #333;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1.1em;
+  transition: background-color 0.3s ease;
+  margin: 0;
+}
+.modal-link:hover {
+  background-color: #e0e0e0;
+}
+
+/* Schließen-Knopf */
+.close {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 30px;
+  cursor: pointer;
+  color: #333;
+}
+
+/* Logos ganz oben an der Leiste */
+.home-logo {
+  display: block;       /* Macht das Bild zu einem Block-Element, sodass es unter dem Text angezeigt wird */
+  margin-top: 5px;      /* Kleiner Abstand zwischen Text und Logo */
+  max-width: 60px;     /* Passe die Größe nach Bedarf an */
+}
+
+.wifi-logo {
+  display: block;       /* Macht das Bild zu einem Block-Element, sodass es unter dem Text angezeigt wird */
+  margin-top: 5px;      /* Kleiner Abstand zwischen Text und Logo */
+  max-width: 60px;     /* Passe die Größe nach Bedarf an */
+  margin-left: 30px;
+}
+
+.cad-logo {
+  display: block;       /* Macht das Bild zu einem Block-Element, sodass es unter dem Text angezeigt wird */
+  margin-top: 5px;      /* Kleiner Abstand zwischen Text und Logo */
+  max-width: 60px;     /* Passe die Größe nach Bedarf an */
+ /*  margin-left: 27px; */
+}
+
+.drei_d-logo {
+  display: block;       /* Macht das Bild zu einem Block-Element, sodass es unter dem Text angezeigt wird */
+  margin-top: 5px;      /* Kleiner Abstand zwischen Text und Logo */
+  max-width: 60px;     /* Passe die Größe nach Bedarf an */
+ /* margin-left: 12px; */
+}
+
+.über_uns-logo {
+  display: block;       /* Macht das Bild zu einem Block-Element, sodass es unter dem Text angezeigt wird */
+  margin-top: 10px;      /* Kleiner Abstand zwischen Text und Logo */
+  max-width: 60px;     /* Passe die Größe nach Bedarf an */
+  margin-left: 8px;
+}
+.ai-logo {
+  display: block;       /* Macht das Bild zu einem Block-Element, sodass es unter dem Text angezeigt wird */
+  margin-top: 10px;      /* Kleiner Abstand zwischen Text und Logo */
+  max-width: 60px;     /* Passe die Größe nach Bedarf an */
+  margin-left: 20px;
+
+}
+.impressum_ai-logo {
+  display: block;       /* Macht das Bild zu einem Block-Element, sodass es unter dem Text angezeigt wird */
+  margin-top: 10px;      /* Kleiner Abstand zwischen Text und Logo */
+  max-width: 60px;     /* Passe die Größe nach Bedarf an */
+  margin-left: 20px;
+
+}
+
+/* Schriftart bei Header die Textblöcke CAD HOME 3D-Druck etc */
+header nav a {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; /* Gleiche Schrift wie bei Module (sofern Module diese Schrift erbt) */
+  font-weight: bold;   /* Macht den Text dick */
+  font-size: 18px;     /* Passe die Schriftgröße nach Bedarf an */
+  color: #000;         /* Textfarbe, z.B. schwarz */
+  
+}
+
+/* Allgemeiner Stil für Navigationslinks */
+header nav a.nav-item {
+  text-decoration: none;
+  color: #000;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  font-size: 20px;
+  transition: background-color 0.3s, color 0.3s;
+  display: inline-block;
+  text-align: center;
+}
+
+/* Hover-Effekt für den gesamten Link (Text und Logo) */
+header nav a.nav-item:hover {
+  background-color: #ddd;  /* Helles Grau als Highlight */
+  color: #333;
+} 
+
+/* Footer */
+    footer {
+      background-color: var(--secondary);
+      color: var(--light);
+      padding: 60px 0 30px;
+  --primary-dark: #1a337e;
+  --primary: #2e4ba0;
+  --primary-light: #3f5cb8;
+  --secondary: #51656e;
+  --accent: #4a90e2;
+  --light: #f5f7ff;
+  --gray: #e5e8f0;
+  --dark: #121c3e;
+  --white: #ffffff;
+  --transition: all 0.3s ease;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    
+    .footer-column h3 {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+    
+    .footer-column h3::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 40px;
+      height: 2px;
+      background-color: var(--accent);
+    }
+    
+    .footer-column p {
+      line-height: 1.6;
+      margin-bottom: 20px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .footer-links {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+    
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    .footer-links a:hover {
+      color: var(--white);
+      transform: translateX(5px);
+    }
+    
+    .footer-links a i {
+      margin-right: 8px;
+      font-size: 0.8rem;
+    }
+    
+    .copyright {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.9rem;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .animate-in {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+    
+    .animate-in.delay-1 {
+      animation-delay: 0.2s;
+    }
+    
+    .animate-in.delay-2 {
+      animation-delay: 0.4s;
+    }
+    
+    .animate-in.delay-3 {
+      animation-delay: 0.6s;
+    }
+    
+    /* Media Queries */
+    @media (max-width: 992px) {
+      .header-content {
+        flex-wrap: wrap;
+      }
+      
+      .search-container {
+        margin-left: 0;
+        width: 100%;
+        margin-top: 15px;
+        justify-content: flex-end;
+      }
+      
+      .search-box {
+        flex-grow: 1;
+      }
+      
+      .search-box input {
+        width: 100%;
+      }
+      
+      .slide img {
+        height: 400px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .nav-links {
+        margin-left: 10px;
+      }
+      
+      .nav-links a {
+        margin: 0 10px;
+        font-size: 0.9rem;
+      }
+      
+      .hero h1 {
+        font-size: 2.2rem;
+      }
+      
+      .hero p {
+        font-size: 1rem;
+      }
+      
+      .slide img {
+        height: 350px;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .header-content {
+        justify-content: center;
+        text-align: center;
+      }
+      
+      .logo {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 15px;
+      }
+      
+      .nav-links {
+        width: 100%;
+        justify-content: center;
+        margin-left: 0;
+        margin-bottom: 15px;
+      }
+      
+      .search-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .search-box {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+      
+      .shop-btn {
+        width: 100%;
+      }
+      
+      .hero h1 {
+        font-size: 1.8rem;
+      }
+      
+      .slide img {
+        height: 250px;
+      }
+      
+      .slider-arrow {
+        width: 40px;
+        height: 40px;
+      }
+    }

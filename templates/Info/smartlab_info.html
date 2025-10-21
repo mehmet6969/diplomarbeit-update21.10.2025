@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartLab Info | Engineering Solutions</title>
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/smartlab_info.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Header etc. -->
+  <!-- Gleiche Struktur wie „Über uns“, 
+       nur mit anderen Inhalten oder Texten nach Bedarf. 
+       Beispiel: -->
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <img src="/api/placeholder/50/50" alt="Logo">
+          <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Über uns</a>
+            <a href="#" class="active">SmartLab</a>
+            <a href="#">Kontakt</a>
+          </div>
+        </div>
+        <div class="search-container">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search...">
+          </div>
+          <button class="shop-btn">Shop Now</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-content">
+      <h1>SmartLab Info</h1>
+      <p>Erfahre, wie unser SmartLab Automatisierung und KI-Technologien für moderne Fertigungsprozesse vereint.</p>
+      <a href="#" class="hero-btn">Mehr entdecken</a>
+    </div>
+  </section>
+
+  <!-- Slider, Info-Section, Footer analog -->
+  <!-- ... -->
+  
+  <script src="{{ url_for('static', filename='js/common_slider.js') }}" defer></script>
+</body>
+</html>
