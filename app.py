@@ -4,95 +4,6 @@ from fuzzywuzzy import fuzz
 
 app = Flask(__name__)
 
-# —————————————————————————————————————————————————————————————————————
-# AI-Assistent-Logik
-# —————————————————————————————————————————————————————————————————————
-
-def normalize_question(question):
-    return question.lower().strip().replace("?", "")
-
-def is_meaning_of_life_question(question):
-    related = [
-        "what is the meaning of life", "meaning of life", "what is life about",
-        "why do we exist", "what is the world about", "why were we born",
-        "purpose of life", "why are we here", "what's life all about",
-        "purpose of existence"
-    ]
-    norm = normalize_question(question)
-    return any(fuzz.partial_ratio(norm, phrase) > 75 for phrase in related)
-
-ayri_responses = [
-    "ja er ist der größte ayri",
-    "absolut, er ist ein echter ayri",
-    "ohne Frage, er ist der ayri Nr. 1",
-    "definitiv, er ist ein unvergleichlicher ayri",
-    "natürlich, keiner ist so ein ayri wie er",
-    "Ja, er kann meine Eier lutschen"
-]
-
-greetings = [
-    "Hallo! Wie kann ich Ihnen heute weiterhelfen?",
-    "Hi! Was kann ich für Sie tun?",
-    "Guten Tag! Wie darf ich Ihnen behilflich sein?"
-]
-
-ask_gender_msgs = [
-    "Bitte geben Sie Ihr Geschlecht ein (male/female)",
-    "Könnten Sie mir bitte Ihr Geschlecht mitteilen (male/female)?",
-    "Teilen Sie mir bitte Ihr Geschlecht mit (male/female)"
-]
-
-response_female = [
-    "The meaning of life is 41.",
-    "Für Frauen: Das Leben bedeutet 41.",
-    "Ihre Antwort lautet: 41."
-]
-
-response_male = [
-    "The meaning of life is 42.",
-    "Für Männer: Das Leben bedeutet 42.",
-    "Ihre Antwort lautet: 42."
-]
-
-unknown_response = [
-    "Ich konnte die Antwort leider nicht ermitteln.",
-    "Leider habe ich keine passende Antwort gefunden.",
-    "Entschuldigung, aber ich weiß nicht, wie ich darauf antworten soll."
-]
-
-error_messages = [
-    "Es gab einen Fehler bei der Anfrage.",
-    "Leider ist ein Fehler aufgetreten.",
-    "Da ist etwas schiefgelaufen."
-]
-
-@app.route('/ask', methods=['POST'])
-def ask():
-    try:
-        data     = request.get_json()
-        question = data.get('question', '')
-        gender   = data.get('gender')
-        norm     = normalize_question(question)
-
-        # Ayri-Check
-        if fuzz.partial_ratio(norm, "furkan") > 75 and fuzz.partial_ratio(norm, "ayri") > 40:
-            return jsonify({"response": random.choice(ayri_responses)})
-
-        # Meaning-of-life
-        if is_meaning_of_life_question(question):
-            if gender:
-                if gender.lower() == "female":
-                    return jsonify({"response": random.choice(response_female)})
-                elif gender.lower() == "male":
-                    return jsonify({"response": random.choice(response_male)})
-                else:
-                    return jsonify({"response": random.choice(unknown_response)})
-            return jsonify({"ask_gender": True, "response": random.choice(ask_gender_msgs)})
-
-        # Fallback
-        return jsonify({"response": random.choice(unknown_response)})
-    except Exception:
-        return jsonify({"response": random.choice(error_messages)})
 
 # —————————————————————————————————————————————————————————————————————
 # Seiten-Routen
@@ -100,8 +11,7 @@ def ask():
 
 @app.route('/')
 def home():
-    greeting = random.choice(greetings)
-    return render_template('index.html', greeting=greeting)
+    return render_template('index.html')
 
 @app.route('/drehen_info')
 def drehen_info():

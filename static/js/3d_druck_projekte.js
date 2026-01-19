@@ -1,12 +1,16 @@
 const { useState, useEffect, useRef } = React;
 
-// EmailJS Konfiguration
-const EMAILJS_SERVICE_ID = 'service_v351y86'; 
-const EMAILJS_TEMPLATE_ID = 'template_nce99x6'; 
-const EMAILJS_PUBLIC_KEY = 'IIsxauIOXV1SLgD-O'; 
+// ============================================
+// EMAILJS KONFIGURATION
+// ============================================
 
-// Whitelist der erlaubten Lehrer-E-Mails
-const TEACHER_WHITELIST = [
+const EMAILJS_CONFIG = {
+    serviceId: 'service_v351y86',
+    templateId: 'template_nce99x6',
+    publicKey: 'IIsxauIOXV1SLgD-O'
+};
+
+const AUTHORIZED_EMAILS = [
     'mehmet.saygin@student.htldornbirn.at',
     'teacher1@htldornbirn.at',
     'teacher2@htldornbirn.at'
@@ -14,7 +18,101 @@ const TEACHER_WHITELIST = [
 
 // EmailJS initialisieren
 if (typeof emailjs !== 'undefined') {
-    emailjs.init(EMAILJS_PUBLIC_KEY);
+    emailjs.init(EMAILJS_CONFIG.publicKey);
+}
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+function isEmailAuthorized(email) {
+    return AUTHORIZED_EMAILS.some(
+        authorizedEmail => authorizedEmail.toLowerCase() === email.toLowerCase()
+    );
+}
+
+function generateVerificationCode() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function saveSession(email) {
+    const session = {
+        email: email,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+    };
+    localStorage.setItem('3ddruck_auth_session', JSON.stringify(session));
+}
+
+function loadSession() {
+    try {
+        const sessionData = localStorage.getItem('3ddruck_auth_session');
+        if (!sessionData) return null;
+        
+        const session = JSON.parse(sessionData);
+        
+        if (Date.now() > session.expiresAt) {
+            localStorage.removeItem('3ddruck_auth_session');
+            return null;
+        }
+        
+        if (!isEmailAuthorized(session.email)) {
+            localStorage.removeItem('3ddruck_auth_session');
+            return null;
+        }
+        
+        return session;
+    } catch (e) {
+        localStorage.removeItem('3ddruck_auth_session');
+        return null;
+    }
+}
+
+function clearSession() {
+    localStorage.removeItem('3ddruck_auth_session');
+}
+
+function getNameFromEmail(email) {
+    const localPart = email.split('@')[0];
+    const parts = localPart.split('.');
+    if (parts.length >= 2) {
+        return parts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+    }
+    return localPart;
+}
+
+async function sendVerificationEmail(email, code) {
+    if (!window.emailjs) {
+        console.error('EmailJS nicht geladen');
+        return { success: false, error: 'EmailJS nicht verfügbar' };
+    }
+    
+    const expiryTime = new Date(Date.now() + 10 * 60 * 1000);
+    const timeString = expiryTime.toLocaleString('de-AT', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    const templateParams = {
+        email: email,             
+        passcode: code,           
+        time: timeString
+    };
+    
+    try {
+        await emailjs.send(
+            EMAILJS_CONFIG.serviceId,
+            EMAILJS_CONFIG.templateId,
+            templateParams
+        );
+        return { success: true };
+    } catch (error) {
+        console.error('EmailJS Error:', error);
+        return { success: false, error: error.message || 'Unbekannter Fehler' };
+    }
 }
 
 // Initial Project Data
@@ -243,14 +341,27 @@ function FeaturesEditor({ features, setFeatures }) {
 
 // Login Modal Component
 function LoginModal({ isOpen, onClose, onSuccess }) {
-    const [step, setStep] = useState('email'); // 'email' or 'code'
+    const [step, setStep] = useState('email');
     const [email, setEmail] = useState('');
     const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
     const [generatedCode, setGeneratedCode] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const [resendTimer, setResendTimer] = useState(0);
     const codeInputsRef = useRef([]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            setStep('email');
+            setEmail('');
+            setVerificationCode(['', '', '', '', '', '']);
+            setGeneratedCode('');
+            setError('');
+            setSuccess('');
+            setLoading(false);
+        }
+    }, [isOpen]);
 
     useEffect(() => {
         if (resendTimer > 0) {
@@ -259,40 +370,36 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
         }
     }, [resendTimer]);
 
-    const generateCode = () => {
-        return Math.floor(100000 + Math.random() * 900000).toString();
-    };
+    const handleEmailSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
 
-    const sendVerificationEmail = async () => {
-        if (!TEACHER_WHITELIST.includes(email.toLowerCase())) {
+        const trimmedEmail = email.trim().toLowerCase();
+
+        if (!trimmedEmail || !trimmedEmail.includes('@')) {
+            setError('Bitte geben Sie eine gültige E-Mail-Adresse ein.');
+            return;
+        }
+
+        if (!isEmailAuthorized(trimmedEmail)) {
             setError('Diese E-Mail-Adresse ist nicht berechtigt.');
             return;
         }
 
         setLoading(true);
-        setError('');
-        
-        const code = generateCode();
+        const code = generateVerificationCode();
         setGeneratedCode(code);
 
-        try {
-            await emailjs.send(
-                EMAILJS_SERVICE_ID,
-                EMAILJS_TEMPLATE_ID,
-                {
-                    to_email: email,
-                    verification_code: code,
-                    to_name: email.split('@')[0]
-                }
-            );
-            
+        const result = await sendVerificationEmail(trimmedEmail, code);
+        setLoading(false);
+
+        if (result.success) {
             setStep('code');
             setResendTimer(60);
-        } catch (err) {
-            setError('Fehler beim Senden der E-Mail. Bitte versuchen Sie es erneut.');
-            console.error('EmailJS Error:', err);
-        } finally {
-            setLoading(false);
+            setSuccess('Code wurde gesendet!');
+        } else {
+            setError(`Fehler beim Senden: ${result.error || 'Unbekannter Fehler'}`);
         }
     };
 
@@ -317,7 +424,8 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
     const verifyCode = () => {
         const enteredCode = verificationCode.join('');
         if (enteredCode === generatedCode) {
-            onSuccess(email);
+            saveSession(email.trim().toLowerCase());
+            onSuccess(email.trim().toLowerCase());
             onClose();
         } else {
             setError('Ungültiger Code. Bitte versuchen Sie es erneut.');
@@ -328,7 +436,21 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
 
     const handleResend = async () => {
         if (resendTimer > 0) return;
-        await sendVerificationEmail();
+        setError('');
+        setLoading(true);
+        
+        const code = generateVerificationCode();
+        setGeneratedCode(code);
+        const result = await sendVerificationEmail(email.trim().toLowerCase(), code);
+        setLoading(false);
+
+        if (result.success) {
+            setResendTimer(60);
+            setVerificationCode(['', '', '', '', '', '']);
+            setSuccess('Neuer Code gesendet!');
+        } else {
+            setError('Fehler beim erneuten Senden.');
+        }
     };
 
     const resetModal = () => {
@@ -337,6 +459,7 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
         setVerificationCode(['', '', '', '', '', '']);
         setGeneratedCode('');
         setError('');
+        setSuccess('');
         setResendTimer(0);
     };
 
@@ -361,13 +484,13 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="lehrer@htldornbirn.at"
-                                    onKeyPress={(e) => e.key === 'Enter' && sendVerificationEmail()}
+                                    onKeyPress={(e) => e.key === 'Enter' && handleEmailSubmit(e)}
                                 />
                             </div>
                             {error && <p className="error-message">{error}</p>}
                             <button
                                 className="login-btn"
-                                onClick={sendVerificationEmail}
+                                onClick={handleEmailSubmit}
                                 disabled={!email || loading}
                             >
                                 {loading ? 'Wird gesendet...' : 'Code senden'}
@@ -380,6 +503,7 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
                                 <h2>Bestätigungscode eingeben</h2>
                                 <p>Code wurde an {email} gesendet</p>
                             </div>
+                            {success && <p className="success-message">{success}</p>}
                             <div className="verification-code-inputs">
                                 {verificationCode.map((digit, index) => (
                                     <input
