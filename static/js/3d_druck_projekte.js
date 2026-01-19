@@ -1,6 +1,24 @@
-const { useState, useEffect } = React;
+const { useState, useEffect, useRef } = React;
 
-const projectsData = [
+// EmailJS Konfiguration
+const EMAILJS_SERVICE_ID = 'service_v351y86'; 
+const EMAILJS_TEMPLATE_ID = 'template_nce99x6'; 
+const EMAILJS_PUBLIC_KEY = 'IIsxauIOXV1SLgD-O'; 
+
+// Whitelist der erlaubten Lehrer-E-Mails
+const TEACHER_WHITELIST = [
+    'mehmet.saygin@student.htldornbirn.at',
+    'teacher1@htldornbirn.at',
+    'teacher2@htldornbirn.at'
+];
+
+// EmailJS initialisieren
+if (typeof emailjs !== 'undefined') {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+}
+
+// Initial Project Data
+const initialProjectsData = [
     {
         id: 1,
         title: "Bionik-Prothese",
@@ -22,7 +40,8 @@ const projectsData = [
             "Modulares Design für Austausch"
         ],
         challenges: "Kombination von starren und flexiblen Materialien in einem Druck mit biokompatiblen Eigenschaften",
-        outcome: "Erfolgreiche Anpassung, deutlich günstiger als konventionelle Prothesen"
+        outcome: "Erfolgreiche Anpassung, deutlich günstiger als konventionelle Prothesen",
+        attachments: []
     },
     {
         id: 2,
@@ -45,7 +64,8 @@ const projectsData = [
             "UV-gehärtete Oberfläche"
         ],
         challenges: "Extreme Detailgenauigkeit bei gleichzeitiger Stabilität und Integration von Elektronik",
-        outcome: "Preisgekröntes Modell bei Architektur-Wettbewerb"
+        outcome: "Preisgekröntes Modell bei Architektur-Wettbewerb",
+        attachments: []
     },
     {
         id: 3,
@@ -68,7 +88,8 @@ const projectsData = [
             "Modular erweiterbar"
         ],
         challenges: "Balance zwischen minimalem Gewicht und ausreichender Steifigkeit bei hohen Vibrationen",
-        outcome: "Flugzeit um 25% erhöht, erfolgreich im Dauereinsatz"
+        outcome: "Flugzeit um 25% erhöht, erfolgreich im Dauereinsatz",
+        attachments: []
     },
     {
         id: 4,
@@ -91,7 +112,8 @@ const projectsData = [
             "Unikate durch parametrisches Design"
         ],
         challenges: "Ultrafeine Details ohne Stützstrukturen und perfekte Brenneigenschaften",
-        outcome: "Erfolgreiche Kollektion, 15 Stück verkauft"
+        outcome: "Erfolgreiche Kollektion, 15 Stück verkauft",
+        attachments: []
     },
     {
         id: 5,
@@ -114,7 +136,8 @@ const projectsData = [
             "Chemikalienbeständig"
         ],
         challenges: "Gleichmäßige TPU-Verarbeitung ohne Warping bei komplexer Geometrie",
-        outcome: "Reduzierung von Ermüdungserscheinungen um 60%"
+        outcome: "Reduzierung von Ermüdungserscheinungen um 60%",
+        attachments: []
     },
     {
         id: 6,
@@ -124,7 +147,7 @@ const projectsData = [
         category: "FDM",
         badge: "Automotive",
         complexity: 4,
-        year: "2024",
+        year: "2025",
         duration: "4 Monate",
         material: "PC-ABS + PETG",
         technologies: ["FDM Engineering", "Thermal Management", "Multi-Material", "Gewinde-Insert"],
@@ -137,45 +160,811 @@ const projectsData = [
             "CFD-simulierte Luftführung"
         ],
         challenges: "Hohe Temperaturen bei gleichzeitiger Maßhaltigkeit und Integration von Metallteilen",
-        outcome: "Prototyp erfolgreich getestet, Serie in Vorbereitung"
+        outcome: "Prototyp erfolgreich getestet, Serie in Vorbereitung",
+        attachments: []
     }
 ];
 
+// Tags Input Component
+function TagsInput({ tags, setTags, placeholder }) {
+    const [inputValue, setInputValue] = useState('');
+    
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            const newTag = inputValue.trim();
+            if (newTag && !tags.includes(newTag)) {
+                setTags([...tags, newTag]);
+            }
+            setInputValue('');
+        } else if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
+            setTags(tags.slice(0, -1));
+        }
+    };
+    
+    const removeTag = (indexToRemove) => {
+        setTags(tags.filter((_, index) => index !== indexToRemove));
+    };
+    
+    return (
+        <div className="tags-input-container">
+            {tags.map((tag, index) => (
+                <span key={index} className="tag-chip">
+                    {tag}
+                    <span className="remove-tag" onClick={() => removeTag(index)}>×</span>
+                </span>
+            ))}
+            <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={tags.length === 0 ? placeholder : ''}
+            />
+        </div>
+    );
+}
+
+// Features Editor Component
+function FeaturesEditor({ features, setFeatures }) {
+    const addFeature = () => {
+        setFeatures([...features, '']);
+    };
+    
+    const updateFeature = (index, value) => {
+        const newFeatures = [...features];
+        newFeatures[index] = value;
+        setFeatures(newFeatures);
+    };
+    
+    const removeFeature = (index) => {
+        setFeatures(features.filter((_, i) => i !== index));
+    };
+    
+    return (
+        <div className="features-editor">
+            {features.map((feature, index) => (
+                <div key={index} className="feature-item-edit">
+                    <input
+                        type="text"
+                        value={feature}
+                        onChange={(e) => updateFeature(index, e.target.value)}
+                        placeholder={`Feature ${index + 1}`}
+                    />
+                    <button type="button" onClick={() => removeFeature(index)}>×</button>
+                </div>
+            ))}
+            <button type="button" className="add-feature-btn" onClick={addFeature}>
+                + Feature hinzufügen
+            </button>
+        </div>
+    );
+}
+
+// Login Modal Component
+function LoginModal({ isOpen, onClose, onSuccess }) {
+    const [step, setStep] = useState('email'); // 'email' or 'code'
+    const [email, setEmail] = useState('');
+    const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
+    const [generatedCode, setGeneratedCode] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [resendTimer, setResendTimer] = useState(0);
+    const codeInputsRef = useRef([]);
+
+    useEffect(() => {
+        if (resendTimer > 0) {
+            const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [resendTimer]);
+
+    const generateCode = () => {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+    };
+
+    const sendVerificationEmail = async () => {
+        if (!TEACHER_WHITELIST.includes(email.toLowerCase())) {
+            setError('Diese E-Mail-Adresse ist nicht berechtigt.');
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+        
+        const code = generateCode();
+        setGeneratedCode(code);
+
+        try {
+            await emailjs.send(
+                EMAILJS_SERVICE_ID,
+                EMAILJS_TEMPLATE_ID,
+                {
+                    to_email: email,
+                    verification_code: code,
+                    to_name: email.split('@')[0]
+                }
+            );
+            
+            setStep('code');
+            setResendTimer(60);
+        } catch (err) {
+            setError('Fehler beim Senden der E-Mail. Bitte versuchen Sie es erneut.');
+            console.error('EmailJS Error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCodeChange = (index, value) => {
+        if (value.length > 1) return;
+        
+        const newCode = [...verificationCode];
+        newCode[index] = value;
+        setVerificationCode(newCode);
+
+        if (value && index < 5) {
+            codeInputsRef.current[index + 1]?.focus();
+        }
+    };
+
+    const handleCodeKeyDown = (index, e) => {
+        if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
+            codeInputsRef.current[index - 1]?.focus();
+        }
+    };
+
+    const verifyCode = () => {
+        const enteredCode = verificationCode.join('');
+        if (enteredCode === generatedCode) {
+            onSuccess(email);
+            onClose();
+        } else {
+            setError('Ungültiger Code. Bitte versuchen Sie es erneut.');
+            setVerificationCode(['', '', '', '', '', '']);
+            codeInputsRef.current[0]?.focus();
+        }
+    };
+
+    const handleResend = async () => {
+        if (resendTimer > 0) return;
+        await sendVerificationEmail();
+    };
+
+    const resetModal = () => {
+        setStep('email');
+        setEmail('');
+        setVerificationCode(['', '', '', '', '', '']);
+        setGeneratedCode('');
+        setError('');
+        setResendTimer(0);
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className={`modal-overlay ${isOpen ? 'active' : ''}`} onClick={onClose}>
+            <div className="modal-content login-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-close" onClick={onClose}>×</div>
+                <div className="modal-body">
+                    {step === 'email' ? (
+                        <>
+                            <div className="login-header">
+                                <div className="lock-icon">🔒</div>
+                                <h2>Lehrer-Authentifizierung</h2>
+                                <p>Bitte geben Sie Ihre HTL-E-Mail-Adresse ein</p>
+                            </div>
+                            <div className="form-group full-width">
+                                <label>E-Mail-Adresse</label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="lehrer@htldornbirn.at"
+                                    onKeyPress={(e) => e.key === 'Enter' && sendVerificationEmail()}
+                                />
+                            </div>
+                            {error && <p className="error-message">{error}</p>}
+                            <button
+                                className="login-btn"
+                                onClick={sendVerificationEmail}
+                                disabled={!email || loading}
+                            >
+                                {loading ? 'Wird gesendet...' : 'Code senden'}
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <div className="login-header">
+                                <div className="lock-icon">📧</div>
+                                <h2>Bestätigungscode eingeben</h2>
+                                <p>Code wurde an {email} gesendet</p>
+                            </div>
+                            <div className="verification-code-inputs">
+                                {verificationCode.map((digit, index) => (
+                                    <input
+                                        key={index}
+                                        ref={(el) => (codeInputsRef.current[index] = el)}
+                                        type="text"
+                                        maxLength="1"
+                                        value={digit}
+                                        onChange={(e) => handleCodeChange(index, e.target.value)}
+                                        onKeyDown={(e) => handleCodeKeyDown(index, e)}
+                                    />
+                                ))}
+                            </div>
+                            {error && <p className="error-message">{error}</p>}
+                            <button
+                                className="login-btn"
+                                onClick={verifyCode}
+                                disabled={verificationCode.join('').length !== 6}
+                            >
+                                Code bestätigen
+                            </button>
+                            <button className="login-btn back-btn" onClick={resetModal}>
+                                Zurück
+                            </button>
+                            <div className="resend-code">
+                                <button onClick={handleResend} disabled={resendTimer > 0}>
+                                    {resendTimer > 0 
+                                        ? `Code erneut senden (${resendTimer}s)` 
+                                        : 'Code erneut senden'}
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Import Modal Component
+function ImportModal({ isOpen, onClose, onSave }) {
+    const [formData, setFormData] = useState({
+        title: '',
+        description: '',
+        category: 'FDM',
+        badge: '',
+        complexity: 3,
+        year: new Date().getFullYear().toString(),
+        duration: '',
+        material: '',
+        image: '',
+        tags: [],
+        technologies: [],
+        features: [''],
+        challenges: '',
+        outcome: ''
+    });
+    const [attachments, setAttachments] = useState([]);
+    const fileInputRef = useRef(null);
+    const imageInputRef = useRef(null);
+    
+    const categories = ['FDM', 'SLA', 'Sonstiges'];
+    
+    const handleChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+    
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                handleChange('image', reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    
+    const handleFileUpload = (e) => {
+        const files = Array.from(e.target.files);
+        const newAttachments = files.map(file => ({
+            name: file.name,
+            size: (file.size / 1024).toFixed(1) + ' KB',
+            type: file.type
+        }));
+        setAttachments(prev => [...prev, ...newAttachments]);
+    };
+    
+    const removeAttachment = (index) => {
+        setAttachments(prev => prev.filter((_, i) => i !== index));
+    };
+    
+    const handleSubmit = () => {
+        const newProject = {
+            ...formData,
+            id: Date.now(),
+            attachments: attachments
+        };
+        onSave(newProject);
+        // Reset form
+        setFormData({
+            title: '',
+            description: '',
+            category: 'FDM',
+            badge: '',
+            complexity: 3,
+            year: new Date().getFullYear().toString(),
+            duration: '',
+            material: '',
+            image: '',
+            tags: [],
+            technologies: [],
+            features: [''],
+            challenges: '',
+            outcome: ''
+        });
+        setAttachments([]);
+        onClose();
+    };
+    
+    if (!isOpen) return null;
+    
+    return (
+        <div className={`modal-overlay ${isOpen ? 'active' : ''}`} onClick={onClose}>
+            <div className="modal-content import-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-close" onClick={onClose}>×</div>
+                <div className="modal-body">
+                    <div className="import-header">
+                        <h2>Neues Projekt importieren</h2>
+                        <p>Fügen Sie alle Projektdetails hinzu</p>
+                    </div>
+                    
+                    <div className="form-grid">
+                        {/* Image Upload */}
+                        <div className="form-group full-width">
+                            <label>Projektbild</label>
+                            <div
+                                className={`image-upload-area ${formData.image ? 'has-image' : ''}`}
+                                onClick={() => imageInputRef.current.click()}
+                            >
+                                {formData.image ? (
+                                    <img src={formData.image} alt="Preview" />
+                                ) : (
+                                    <>
+                                        <div className="upload-icon">📷</div>
+                                        <p className="upload-text">
+                                            Klicken zum <span>Hochladen</span> oder Drag & Drop
+                                        </p>
+                                    </>
+                                )}
+                            </div>
+                            <input
+                                ref={imageInputRef}
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={handleImageUpload}
+                            />
+                        </div>
+                        
+                        {/* Title */}
+                        <div className="form-group full-width">
+                            <label>Projekttitel</label>
+                            <input
+                                type="text"
+                                value={formData.title}
+                                onChange={(e) => handleChange('title', e.target.value)}
+                                placeholder="z.B. Bionik-Prothese"
+                            />
+                        </div>
+                        
+                        {/* Badge */}
+                        <div className="form-group">
+                            <label>Badge (Hervorhebung)</label>
+                            <input
+                                type="text"
+                                value={formData.badge}
+                                onChange={(e) => handleChange('badge', e.target.value)}
+                                placeholder="z.B. Medizintechnik, Innovation"
+                            />
+                        </div>
+                        
+                        {/* Category */}
+                        <div className="form-group">
+                            <label>Kategorie</label>
+                            <select
+                                value={formData.category}
+                                onChange={(e) => handleChange('category', e.target.value)}
+                            >
+                                {categories.map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                        </div>
+                        
+                        {/* Complexity */}
+                        <div className="form-group">
+                            <label>Komplexität (1-5)</label>
+                            <div className="complexity-selector">
+                                {[1, 2, 3, 4, 5].map(num => (
+                                    <button
+                                        key={num}
+                                        type="button"
+                                        className={`complexity-btn ${formData.complexity >= num ? 'active' : ''}`}
+                                        onClick={() => handleChange('complexity', num)}
+                                    >
+                                        {num}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        {/* Year */}
+                        <div className="form-group">
+                            <label>Jahr</label>
+                            <input
+                                type="text"
+                                value={formData.year}
+                                onChange={(e) => handleChange('year', e.target.value)}
+                                placeholder="2025"
+                            />
+                        </div>
+                        
+                        {/* Duration */}
+                        <div className="form-group">
+                            <label>Dauer</label>
+                            <input
+                                type="text"
+                                value={formData.duration}
+                                onChange={(e) => handleChange('duration', e.target.value)}
+                                placeholder="z.B. 6 Monate"
+                            />
+                        </div>
+                        
+                        {/* Material */}
+                        <div className="form-group">
+                            <label>Material</label>
+                            <input
+                                type="text"
+                                value={formData.material}
+                                onChange={(e) => handleChange('material', e.target.value)}
+                                placeholder="z.B. TPU + PLA"
+                            />
+                        </div>
+                        
+                        {/* Description */}
+                        <div className="form-group full-width">
+                            <label>Beschreibung</label>
+                            <textarea
+                                value={formData.description}
+                                onChange={(e) => handleChange('description', e.target.value)}
+                                placeholder="Kurze Projektbeschreibung..."
+                            />
+                        </div>
+                        
+                        {/* Tags */}
+                        <div className="form-group full-width">
+                            <label>Tags (Enter zum Hinzufügen)</label>
+                            <TagsInput
+                                tags={formData.tags}
+                                setTags={(tags) => handleChange('tags', tags)}
+                                placeholder="z.B. Medizin, Bionik, Custom..."
+                            />
+                        </div>
+                        
+                        {/* Technologies */}
+                        <div className="form-group full-width">
+                            <label>Technologien (Enter zum Hinzufügen)</label>
+                            <TagsInput
+                                tags={formData.technologies}
+                                setTags={(tech) => handleChange('technologies', tech)}
+                                placeholder="z.B. FDM Multi-Material, Topology Optimization..."
+                            />
+                        </div>
+                        
+                        {/* Features */}
+                        <div className="form-group full-width">
+                            <label>Features & Highlights</label>
+                            <FeaturesEditor
+                                features={formData.features}
+                                setFeatures={(features) => handleChange('features', features)}
+                            />
+                        </div>
+                        
+                        {/* Challenges */}
+                        <div className="form-group full-width">
+                            <label>Herausforderungen</label>
+                            <textarea
+                                value={formData.challenges}
+                                onChange={(e) => handleChange('challenges', e.target.value)}
+                                placeholder="Welche Herausforderungen gab es?"
+                            />
+                        </div>
+                        
+                        {/* Outcome */}
+                        <div className="form-group full-width">
+                            <label>Ergebnis</label>
+                            <textarea
+                                value={formData.outcome}
+                                onChange={(e) => handleChange('outcome', e.target.value)}
+                                placeholder="Was wurde erreicht?"
+                            />
+                        </div>
+                        
+                        {/* File Attachments */}
+                        <div className="form-group full-width">
+                            <label>Dateien anhängen</label>
+                            <div className="file-attachments">
+                                {attachments.length > 0 && (
+                                    <div className="file-list">
+                                        {attachments.map((file, index) => (
+                                            <span key={index} className="file-chip">
+                                                📎 {file.name} ({file.size})
+                                                <span
+                                                    className="remove-file"
+                                                    onClick={() => removeAttachment(index)}
+                                                >
+                                                    {' ×'}
+                                                </span>
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                                <button
+                                    type="button"
+                                    className="add-feature-btn"
+                                    onClick={() => fileInputRef.current.click()}
+                                >
+                                    + Dateien hinzufügen
+                                </button>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    multiple
+                                    style={{ display: 'none' }}
+                                    onChange={handleFileUpload}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="form-actions">
+                        <button type="button" className="btn btn-secondary" onClick={onClose}>
+                            Abbrechen
+                        </button>
+                        <button type="button" className="btn btn-primary" onClick={handleSubmit}>
+                            Projekt speichern
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Project Detail Modal Component
+function ProjectModal({ project, onClose }) {
+    if (!project) return null;
+    
+    return (
+        <div className={`modal-overlay ${project ? 'active' : ''}`} onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-close" onClick={onClose}>×</div>
+                <div className="modal-image" style={{backgroundImage: `url(${project.image})`}}>
+                    <img src={project.image} alt={project.title} />
+                </div>
+                <div className="modal-body">
+                    <div className="modal-header">
+                        <h2 className="modal-title">{project.title}</h2>
+                        <p className="modal-description">{project.description}</p>
+                        <div className="project-tags">
+                            {project.tags.map((tag, i) => (
+                                <span key={i} className="project-tag">{tag}</span>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <div className="modal-details">
+                        <div className="detail-item">
+                            <div className="detail-label">Jahr</div>
+                            <div className="detail-value">{project.year}</div>
+                        </div>
+                        <div className="detail-item">
+                            <div className="detail-label">Dauer</div>
+                            <div className="detail-value">{project.duration}</div>
+                        </div>
+                        <div className="detail-item">
+                            <div className="detail-label">Material</div>
+                            <div className="detail-value">{project.material}</div>
+                        </div>
+                        <div className="detail-item">
+                            <div className="detail-label">Kategorie</div>
+                            <div className="detail-value">{project.category}</div>
+                        </div>
+                    </div>
+
+                    <div className="modal-section">
+                        <h3>Technologien</h3>
+                        <div className="tech-stack">
+                            {project.technologies.map((tech, i) => (
+                                <div key={i} className="tech-item">{tech}</div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="modal-section">
+                        <h3>Features & Highlights</h3>
+                        <ul>
+                            {project.features.filter(f => f).map((feature, i) => (
+                                <li key={i}>{feature}</li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div className="modal-section">
+                        <h3>Herausforderungen</h3>
+                        <p style={{ color: 'var(--text-muted)', lineHeight: '1.8', fontSize: '1.05rem', paddingLeft: '1.5rem' }}>
+                            {project.challenges}
+                        </p>
+                    </div>
+
+                    <div className="modal-section">
+                        <h3>Ergebnis</h3>
+                        <p style={{ color: 'var(--text-muted)', lineHeight: '1.8', fontSize: '1.05rem', paddingLeft: '1.5rem' }}>
+                            {project.outcome}
+                        </p>
+                    </div>
+                    
+                    {project.attachments && project.attachments.length > 0 && (
+                        <div className="modal-section">
+                            <h3>Anhänge</h3>
+                            <div className="attachments-list">
+                                {project.attachments.map((file, i) => (
+                                    <div key={i} className="attachment-item">
+                                        <div className="attachment-info">
+                                            <span className="attachment-icon">📎</span>
+                                            <div className="attachment-details">
+                                                <div className="attachment-name">{file.name}</div>
+                                                <div className="attachment-size">{file.size}</div>
+                                            </div>
+                                        </div>
+                                        <a href="#" className="download-btn">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Navigation Component
+function Navigation({ isAuthenticated, userEmail, onLogout, onImportClick }) {
+    const [scrolled, setScrolled] = useState(false);
+    
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 50);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+    
+    const getInitials = (email) => {
+        return email.split('@')[0].substring(0, 2).toUpperCase();
+    };
+    
+    return (
+        <nav id="navbar" className={scrolled ? 'scrolled' : ''}>
+            <div className="nav-content">
+                <div className="logo">🖨️ IEM</div>
+                <ul className="nav-links">
+                    <li><a href="#" className="nav-link">Home</a></li>
+                    <li><a href="#" className="nav-link active">Projekte</a></li>
+                    <li><a href="#" className="nav-link">Info</a></li>
+                    {isAuthenticated ? (
+                        <>
+                            <li>
+                                <span className="nav-link" onClick={onImportClick} style={{ cursor: 'pointer' }}>
+                                    Import
+                                </span>
+                            </li>
+                            <li>
+                                <div className="user-badge">
+                                    <div className="avatar">{getInitials(userEmail)}</div>
+                                    <div className="user-info">
+                                        <div className="user-name">{userEmail.split('@')[0]}</div>
+                                        <div className="user-role">Lehrer</div>
+                                    </div>
+                                    <button className="logout-btn" onClick={onLogout} title="Abmelden">
+                                        🚪
+                                    </button>
+                                </div>
+                            </li>
+                        </>
+                    ) : (
+                        <li>
+                            <span className="nav-link" onClick={onImportClick} style={{ cursor: 'pointer' }}>
+                                Import
+                            </span>
+                        </li>
+                    )}
+                </ul>
+            </div>
+        </nav>
+    );
+}
+
+// Main App Component
 function App() {
+    const [projects, setProjects] = useState(initialProjectsData);
     const [activeFilter, setActiveFilter] = useState('Alle');
-    const [currentSlide, setCurrentSlide] = useState(0);
     const [selectedProject, setSelectedProject] = useState(null);
+    const [showImportModal, setShowImportModal] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [userEmail, setUserEmail] = useState('');
+    const [collapsedYears, setCollapsedYears] = useState({});
 
     const categories = ['Alle', 'FDM', 'SLA'];
     
+    // Get unique years from projects
+    const years = [...new Set(projects.map(p => p.year))].sort((a, b) => b - a);
+    
+    // Filter projects
     const filteredProjects = activeFilter === 'Alle' 
-        ? projectsData 
-        : projectsData.filter(p => p.category === activeFilter);
+        ? projects 
+        : projects.filter(p => p.category === activeFilter);
 
-    const itemsPerSlide = window.innerWidth > 768 ? 3 : 1;
-    const maxSlides = Math.ceil(filteredProjects.length / itemsPerSlide);
+    // Group projects by year
+    const projectsByYear = years.reduce((acc, year) => {
+        acc[year] = filteredProjects.filter(p => p.year === year);
+        return acc;
+    }, {});
 
-    const nextSlide = () => {
-        setCurrentSlide((prev) => (prev + 1) % maxSlides);
+    const toggleYear = (year) => {
+        setCollapsedYears(prev => ({
+            ...prev,
+            [year]: !prev[year]
+        }));
     };
 
-    const prevSlide = () => {
-        setCurrentSlide((prev) => (prev - 1 + maxSlides) % maxSlides);
+    const handleImportClick = () => {
+        if (isAuthenticated) {
+            setShowImportModal(true);
+        } else {
+            setShowLoginModal(true);
+        }
     };
 
-    useEffect(() => {
-        setCurrentSlide(0);
-    }, [activeFilter]);
+    const handleLoginSuccess = (email) => {
+        setIsAuthenticated(true);
+        setUserEmail(email);
+        setShowLoginModal(false);
+        setShowImportModal(true);
+    };
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            nextSlide();
-        }, 5000);
-        return () => clearInterval(interval);
-    }, [currentSlide, maxSlides]);
+    const handleLogout = () => {
+        setIsAuthenticated(false);
+        setUserEmail('');
+    };
+
+    const addProject = (newProject) => {
+        setProjects(prev => [newProject, ...prev]);
+    };
+
+    // Stats
+    const totalProjects = projects.length;
+    const totalMaterials = [...new Set(projects.map(p => p.material))].length;
 
     return (
         <React.Fragment>
+            <Navigation
+                isAuthenticated={isAuthenticated}
+                userEmail={userEmail}
+                onLogout={handleLogout}
+                onImportClick={handleImportClick}
+            />
+            
             <section className="hero">
                 <div id="canvas-container">
                     <ThreeScene />
@@ -187,11 +976,11 @@ function App() {
                     </p>
                     <div className="stats-bar">
                         <div className="stat-item">
-                            <div className="stat-number">6</div>
+                            <div className="stat-number">{totalProjects}</div>
                             <div className="stat-label">Projekte</div>
                         </div>
                         <div className="stat-item">
-                            <div className="stat-number">25+</div>
+                            <div className="stat-number">{totalMaterials}+</div>
                             <div className="stat-label">Materialien</div>
                         </div>
                         <div className="stat-item">
@@ -218,146 +1007,105 @@ function App() {
                 </div>
             </section>
 
-            <section className="carousel-section">
+            <section className="projects-section">
                 <div className="container">
-                    <div className="carousel-container">
-                        <div className="carousel-nav prev" onClick={prevSlide}>‹</div>
-                        <div 
-                            className="carousel-track"
-                            style={{
-                                transform: `translateX(-${currentSlide * (100 / itemsPerSlide)}%)`
-                            }}
-                        >
-                            {filteredProjects.map(project => (
-                                <div 
-                                    key={project.id} 
-                                    className="project-card"
-                                    onClick={() => setSelectedProject(project)}
+                    {years.map(year => {
+                        const yearProjects = projectsByYear[year];
+                        if (yearProjects.length === 0) return null;
+                        
+                        const isCollapsed = collapsedYears[year];
+                        
+                        return (
+                            <div key={year} className="year-group">
+                                <div
+                                    className={`year-header ${isCollapsed ? 'collapsed' : ''}`}
+                                    onClick={() => toggleYear(year)}
                                 >
-                                    <div className="project-image" style={{backgroundImage: `url(${project.image})`}}>
-                                        <img src={project.image} alt={project.title} />
-                                        <div className="project-badge">{project.badge}</div>
-                                        <div className="complexity-indicator">
-                                            {[...Array(5)].map((_, i) => (
-                                                <div 
-                                                    key={i} 
-                                                    className={`complexity-dot ${i < project.complexity ? 'active' : ''}`}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="project-content">
-                                        <h3 className="project-title">{project.title}</h3>
-                                        <p className="project-description">{project.description}</p>
-                                        <div className="project-meta">
-                                            <div className="meta-item">
-                                                <span className="meta-icon">📅</span>
-                                                <span>{project.year}</span>
+                                    <h2>{year}</h2>
+                                    <span className="project-count">
+                                        {yearProjects.length} Projekt{yearProjects.length !== 1 ? 'e' : ''}
+                                    </span>
+                                    <span className="toggle-icon">{isCollapsed ? '▸' : '▾'}</span>
+                                </div>
+                                <div
+                                    className={`year-projects ${isCollapsed ? 'collapsed' : ''}`}
+                                    style={{ maxHeight: isCollapsed ? '0' : `${yearProjects.length * 600}px` }}
+                                >
+                                    <div className="projects-grid">
+                                        {yearProjects.map((project, index) => (
+                                            <div
+                                                key={project.id}
+                                                className="project-card"
+                                                onClick={() => setSelectedProject(project)}
+                                            >
+                                                <div className="project-image" style={{backgroundImage: `url(${project.image})`}}>
+                                                    <img src={project.image} alt={project.title} />
+                                                    <div className="project-badge">{project.badge}</div>
+                                                    <div className="complexity-indicator">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <div
+                                                                key={i}
+                                                                className={`complexity-dot ${i < project.complexity ? 'active' : ''}`}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <div className="project-content">
+                                                    <h3 className="project-title">{project.title}</h3>
+                                                    <p className="project-description">{project.description}</p>
+                                                    <div className="project-meta">
+                                                        <div className="meta-item">
+                                                            <span className="meta-icon">📅</span>
+                                                            <span>{project.year}</span>
+                                                        </div>
+                                                        <div className="meta-item">
+                                                            <span className="meta-icon">⏱</span>
+                                                            <span>{project.duration}</span>
+                                                        </div>
+                                                        <div className="meta-item">
+                                                            <span className="meta-icon">🧪</span>
+                                                            <span>{project.material}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="project-tags">
+                                                        {project.tags.map((tag, i) => (
+                                                            <span key={i} className="project-tag">{tag}</span>
+                                                        ))}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="meta-item">
-                                                <span className="meta-icon">⏱</span>
-                                                <span>{project.duration}</span>
-                                            </div>
-                                            <div className="meta-item">
-                                                <span className="meta-icon">🧪</span>
-                                                <span>{project.material}</span>
-                                            </div>
-                                        </div>
-                                        <div className="project-tags">
-                                            {project.tags.map((tag, i) => (
-                                                <span key={i} className="project-tag">{tag}</span>
-                                            ))}
-                                        </div>
+                                        ))}
                                     </div>
                                 </div>
-                            ))}
+                            </div>
+                        );
+                    })}
+                    
+                    {filteredProjects.length === 0 && (
+                        <div className="no-projects">
+                            <h3>Keine Projekte gefunden</h3>
+                            <p>Versuchen Sie einen anderen Filter oder fügen Sie neue Projekte hinzu.</p>
                         </div>
-                        <div className="carousel-nav next" onClick={nextSlide}>›</div>
-                    </div>
-                    <div className="carousel-dots">
-                        {[...Array(maxSlides)].map((_, i) => (
-                            <div
-                                key={i}
-                                className={`carousel-dot ${currentSlide === i ? 'active' : ''}`}
-                                onClick={() => setCurrentSlide(i)}
-                            />
-                        ))}
-                    </div>
+                    )}
                 </div>
             </section>
 
-            <div className={`modal-overlay ${selectedProject ? 'active' : ''}`} onClick={() => setSelectedProject(null)}>
-                {selectedProject && (
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-close" onClick={() => setSelectedProject(null)}>×</div>
-                        <div className="modal-image" style={{backgroundImage: `url(${selectedProject.image})`}}>
-                            <img src={selectedProject.image} alt={selectedProject.title} />
-                        </div>
-                        <div className="modal-body">
-                            <div className="modal-header">
-                                <h2 className="modal-title">{selectedProject.title}</h2>
-                                <p className="modal-description">{selectedProject.description}</p>
-                                <div className="project-tags">
-                                    {selectedProject.tags.map((tag, i) => (
-                                        <span key={i} className="project-tag">{tag}</span>
-                                    ))}
-                                </div>
-                            </div>
-                            
-                            <div className="modal-details">
-                                <div className="detail-item">
-                                    <div className="detail-label">Jahr</div>
-                                    <div className="detail-value">{selectedProject.year}</div>
-                                </div>
-                                <div className="detail-item">
-                                    <div className="detail-label">Dauer</div>
-                                    <div className="detail-value">{selectedProject.duration}</div>
-                                </div>
-                                <div className="detail-item">
-                                    <div className="detail-label">Material</div>
-                                    <div className="detail-value">{selectedProject.material}</div>
-                                </div>
-                                <div className="detail-item">
-                                    <div className="detail-label">Kategorie</div>
-                                    <div className="detail-value">{selectedProject.category}</div>
-                                </div>
-                            </div>
+            {/* Project Detail Modal */}
+            <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
 
-                            <div className="modal-section">
-                                <h3>Technologien</h3>
-                                <div className="tech-stack">
-                                    {selectedProject.technologies.map((tech, i) => (
-                                        <div key={i} className="tech-item">{tech}</div>
-                                    ))}
-                                </div>
-                            </div>
+            {/* Login Modal */}
+            <LoginModal
+                isOpen={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
+                onSuccess={handleLoginSuccess}
+            />
 
-                            <div className="modal-section">
-                                <h3>Features & Highlights</h3>
-                                <ul>
-                                    {selectedProject.features.map((feature, i) => (
-                                        <li key={i}>{feature}</li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            <div className="modal-section">
-                                <h3>Herausforderungen</h3>
-                                <p style={{ color: 'var(--text-muted)', lineHeight: '1.8', fontSize: '1.05rem', paddingLeft: '1.5rem' }}>
-                                    {selectedProject.challenges}
-                                </p>
-                            </div>
-
-                            <div className="modal-section">
-                                <h3>Ergebnis</h3>
-                                <p style={{ color: 'var(--text-muted)', lineHeight: '1.8', fontSize: '1.05rem', paddingLeft: '1.5rem' }}>
-                                    {selectedProject.outcome}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
+            {/* Import Modal */}
+            <ImportModal
+                isOpen={showImportModal}
+                onClose={() => setShowImportModal(false)}
+                onSave={addProject}
+            />
 
             <footer>
                 <div className="footer-content">
@@ -388,7 +1136,7 @@ function App() {
                     <div className="footer-column">
                         <h4>Kontakt</h4>
                         <ul>
-                            <li>mehmet.saygin@student.htldornbirn.com</li>
+                            <li>mehmet.saygin@student.htldornbirn.at</li>
                             <li>+43 999 99999</li>
                             <li>Höchsterstraße 73, 6850 Dornbirn</li>
                         </ul>

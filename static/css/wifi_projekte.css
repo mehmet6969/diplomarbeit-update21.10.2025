@@ -212,24 +212,52 @@ nav.scrolled {
     box-shadow: 0 8px 20px rgba(46,94,170,0.3);
 }
 
-.carousel-section {
-    padding: 2rem 0 6rem;
-    background: var(--cream);
-    position: relative;
-}
+/* ================================
+   CAE-Grid Override (Projects)
+   ================================ */
 
 .carousel-container {
-    position: relative;
-    overflow: hidden;
-    padding: 2rem 0;
+  overflow: visible !important;
+  padding: 0 3rem !important;
 }
 
 .carousel-track {
-    display: flex;
-    gap: 2rem;
-    padding: 0 3rem;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)) !important;
+  gap: 2px !important;
+  background: var(--cream-dark) !important;
+  padding: 2px !important;
+
+  max-width: 1400px !important;
+  margin: 0 auto !important;
+
+  transform: none !important;
 }
+
+.carousel-nav,
+.carousel-dots {
+  display: none !important;
+}
+
+.project-card {
+  min-width: 0 !important;
+  border-radius: 0 !important;
+}
+
+.project-image,
+.project-image img {
+  border-radius: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .carousel-container {
+    padding: 0 1.5rem !important;
+  }
+  .carousel-track {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 
 .project-card {
     min-width: 420px;

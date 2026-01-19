@@ -5,35 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Automatisierungstechnik Projekte | IEM</title>
     
-    <link rel="stylesheet" href="../../static/css/automatisierungstechnik_projekte.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/automatisierungstechnik_projekte.css') }}">
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- EmailJS für E-Mail-Verifizierung -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
-    <div class="cursor"></div>
-    <div class="cursor-follower"></div>
-
-    <nav id="navbar">
-        <div class="nav-content">
-            <div class="logo">
-                ⚙️ IEM
-            </div>
-            <ul class="nav-links">
-                <li><a href="#" class="nav-link">Home</a></li>
-                <li><a href="#" class="nav-link active">Projekte</a></li>
-                <li><a href="#" class="nav-link">Info</a></li>
-                <li><a href="#" class="nav-link">Weiteres</a></li>
-            </ul>
-        </div>
-    </nav>
+    <div class="grid-bg"></div>
 
     <div id="root"></div>
 
-    <script type="text/babel" src="../../static/js/automat_projekte_animations.js"></script>
-    <script type="text/babel" src="../../static/js/automatisierungstechnik_projekte.js"></script>
+    <script type="text/babel" src="{{ url_for('static', filename='js/automatisierungstechnik_projekte.js') }}"></script>
 </body>
 </html>
