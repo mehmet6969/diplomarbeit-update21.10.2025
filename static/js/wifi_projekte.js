@@ -1,58 +1,51 @@
 const { useState, useEffect, useRef } = React;
 
 // ============================================
-// KONFIGURATION - HIER ANPASSEN
+// KONFIGURATION
 // ============================================
 
-// EmailJS Konfiguration (von emailjs.com)
 const EMAILJS_CONFIG = {
-    serviceId: 'service_v351y86',      // Primär: Outlook
-    backupServiceId: 'service_s4pcyvf', // Backup: Gmail
+    serviceId: 'service_v351y86',
+    backupServiceId: 'service_s4pcyvf',
     templateId: 'template_nce99x6',
     publicKey: 'IIsxauIOXV1SLgD-O'
 };
 
-// Whitelist der erlaubten E-Mail-Adressen
 const AUTHORIZED_EMAILS = [
-    'mehmet.saygin@student.htldornbirn.at',
-    'msaygin29@gmail.com',
-    'direktor@htldornbirn.at',
-    // Füge weitere Lehrer hier hinzu:
-    // 'vorname.nachname@htldornbirn.at',
-];
+        'mehmet.saygin@student.htldornbirn.at',
+        'msaygin29@gmail.com',
+        'direktor@htldornbirn.at',
+        'dominik.ferles@student.htldornbirn.at',
+        'kenan.bayar@htldornbirn.at'
+    ];
 
 // ============================================
-// AUTHENTIFIZIERUNG SYSTEM
+// AUTH SYSTEM
 // ============================================
 
-// EmailJS initialisieren
 if (window.emailjs) {
     emailjs.init(EMAILJS_CONFIG.publicKey);
 }
 
-// Prüft ob E-Mail in der Whitelist ist
 function isEmailAuthorized(email) {
     return AUTHORIZED_EMAILS.some(
         authorizedEmail => authorizedEmail.toLowerCase() === email.toLowerCase()
     );
 }
 
-// Generiert 6-stelligen Verifizierungscode
 function generateVerificationCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Speichert Session im localStorage
 function saveSession(email) {
     const session = {
         email: email,
         timestamp: Date.now(),
-        expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 Stunden gültig
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000)
     };
     localStorage.setItem('drehen_auth_session', JSON.stringify(session));
 }
 
-// Lädt Session aus localStorage
 function loadSession() {
     try {
         const sessionData = localStorage.getItem('drehen_auth_session');
@@ -77,12 +70,10 @@ function loadSession() {
     }
 }
 
-// Löscht Session
 function clearSession() {
     localStorage.removeItem('drehen_auth_session');
 }
 
-// Extrahiert Namen aus E-Mail
 function getNameFromEmail(email) {
     const localPart = email.split('@')[0];
     const parts = localPart.split('.');
@@ -92,7 +83,6 @@ function getNameFromEmail(email) {
     return localPart;
 }
 
-// Sendet Verifizierungs-E-Mail
 async function sendVerificationEmail(email, code) {
     if (EMAILJS_CONFIG.serviceId === 'YOUR_SERVICE_ID') {
         console.log('========================================');
@@ -117,34 +107,19 @@ async function sendVerificationEmail(email, code) {
         time: timeString
     };
     
-    // Versuche primären Service (Outlook)
     try {
-        await emailjs.send(
-            EMAILJS_CONFIG.serviceId,
-            EMAILJS_CONFIG.templateId,
-            templateParams
-        );
-        console.log('E-Mail gesendet über primären Service');
+        await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, templateParams);
         return { success: true };
     } catch (primaryError) {
-        console.warn('Primärer Service fehlgeschlagen, versuche Backup...', primaryError);
-        
-        // Versuche Backup Service (Gmail)
+        console.warn('Primärer Service fehlgeschlagen:', primaryError);
         if (EMAILJS_CONFIG.backupServiceId) {
             try {
-                await emailjs.send(
-                    EMAILJS_CONFIG.backupServiceId,
-                    EMAILJS_CONFIG.templateId,
-                    templateParams
-                );
-                console.log('E-Mail gesendet über Backup Service');
+                await emailjs.send(EMAILJS_CONFIG.backupServiceId, EMAILJS_CONFIG.templateId, templateParams);
                 return { success: true };
             } catch (backupError) {
-                console.error('Beide Services fehlgeschlagen:', backupError);
                 return { success: false, error: backupError.message };
             }
         }
-        
         return { success: false, error: primaryError.message };
     }
 }
@@ -289,188 +264,13 @@ function ThreeScene() {
 }
 
 // ============================================
-// PROJECT DATA
+// FALLBACK DATA (leer - wird von MongoDB geladen)
 // ============================================
 
-const initialProjectsData = [
-    {
-        id: 1,
-        title: "Präzisions-Turbinenwelle",
-        image: "../../static/images/pexels1.jpg",
-        description: "Hochpräzise Turbinenwelle aus Inconel 718 mit komplexer Geometrie und extremen Toleranzen für Luftfahrtanwendung.",
-        category: "CNC-Drehen",
-        badge: "Luft & Raumfahrt",
-        precision: "±0.005mm",
-        year: "2024",
-        duration: "4 Monate",
-        material: "Inconel 718",
-        specs: {
-            durchmesser: "Ø 120mm",
-            laenge: "450mm",
-            toleranz: "IT6",
-            oberflaeche: "Ra 0.8"
-        },
-        tags: ["Aerospace", "Hochpräzision", "Sondermaterial"],
-        features: [
-            "5-Achs simultane Bearbeitung",
-            "Prozessstabile Zerspanung von Inconel",
-            "In-Prozess Messtechnik zur Qualitätssicherung",
-            "Thermische Kompensation während Bearbeitung",
-            "Vibrationsgedämpfte Aufspannung"
-        ],
-        challenges: "Bearbeitung von schwer zerspanbarem Inconel bei höchsten Toleranzanforderungen und komplexer Geometrie",
-        outcome: "Alle Toleranzen eingehalten, Qualifizierung für Serienfertigung erfolgreich",
-        attachments: []
-    },
-    {
-        id: 2,
-        title: "Medizinisches Implantat-System",
-        image: "../../static/images/pexels2.jpg",
-        description: "Biokompatibles Hüftimplantat aus Titan Grade 5 mit komplexer Oberflächenstruktur für optimale Osseointegration.",
-        category: "CNC-Fräsen",
-        badge: "Medizintechnik",
-        precision: "±0.01mm",
-        year: "2024",
-        duration: "6 Monate",
-        material: "Titan Grade 5",
-        specs: {
-            durchmesser: "Ø 45mm",
-            laenge: "180mm",
-            toleranz: "IT7",
-            oberflaeche: "Ra 0.4"
-        },
-        tags: ["Medizin", "Biokompatibel", "5-Achs"],
-        features: [
-            "5-Achs Simultanfräsen für organische Formen",
-            "Spezielle Oberflächenstruktur für Knochenwachstum",
-            "100 Prozent Qualitätskontrolle mit Koordinatenmessgerät",
-            "Reinraumfertigung nach ISO 13485",
-            "Rückverfolgbarkeit über Seriennummer"
-        ],
-        challenges: "Titanbearbeitung mit extremer Präzision bei komplexer 3D-Geometrie und strengsten Hygieneanforderungen",
-        outcome: "Medizinische Zulassung erhalten, in klinischer Erprobung",
-        attachments: []
-    },
-    {
-        id: 3,
-        title: "Hochleistungs-Zahnrad",
-        image: "../../static/images/pexels3.jpg",
-        description: "Präzisionszahnrad für Industriegetriebe mit gehärteten Flanken und optimierter Verzahnungsgeometrie.",
-        category: "CNC-Fräsen",
-        badge: "Antriebstechnik",
-        precision: "±0.008mm",
-        year: "2024",
-        duration: "5 Monate",
-        material: "16MnCr5",
-        specs: {
-            modul: "m = 4",
-            zaehnezahl: "z = 48",
-            toleranz: "DIN 5",
-            haerte: "58-62 HRC"
-        },
-        tags: ["Verzahnung", "Wälzfräsen", "Gehärtet"],
-        features: [
-            "Wälzfräsen mit Profilkorrektur",
-            "Induktive Randschichthärtung",
-            "Zahnflankenmesstechnik mit Verzahnungsmessgerät",
-            "Optimierte Evolventengeometrie",
-            "Laufgeräuschoptimierung durch Mikrogeometrie"
-        ],
-        challenges: "Einhaltung höchster Verzahnungsqualität bei gleichzeitiger Randschichthärtung ohne Verzug",
-        outcome: "Geräuschreduzierung um 40 Prozent, Lebensdauer verdoppelt",
-        attachments: []
-    },
-    {
-        id: 4,
-        title: "Motorsport Kurbelwelle",
-        image: "../../static/images/pexels4.jpg",
-        description: "Leichtbau-Kurbelwelle für Rennmotor aus geschmiedetem Chrom-Molybdän-Stahl mit integrierten Ausgleichsgewichten.",
-        category: "CNC-Drehen",
-        badge: "Motorsport",
-        precision: "±0.003mm",
-        year: "2025",
-        duration: "7 Monate",
-        material: "42CrMo4",
-        specs: {
-            hubzapfen: "Ø 58mm",
-            gesamtlaenge: "520mm",
-            gewicht: "12.8 kg",
-            oberflaeche: "Ra 0.6"
-        },
-        tags: ["Racing", "Leichtbau", "Hochdrehzahl"],
-        features: [
-            "Gewichtsoptimierung durch Topologieanalyse",
-            "Dynamische Auswuchtung bis 12000 U/min",
-            "Mikropolierte Lagerflächen",
-            "FEM-gestützte Konstruktion",
-            "Röntgenprüfung auf innere Defekte"
-        ],
-        challenges: "Maximale Gewichtsreduktion bei Sicherstellung der Festigkeit unter extremen Drehzahlen",
-        outcome: "Gewichtsersparnis 25 Prozent, erfolgreich im Renneinsatz getestet",
-        attachments: []
-    },
-    {
-        id: 5,
-        title: "Optik-Präzisionsträger",
-        image: "../../static/images/pexels5.jpg",
-        description: "Ultra-präziser Linsenträger für Astronomie-Teleskop mit nanometer-genauer Positionierung.",
-        category: "CNC-Fräsen",
-        badge: "Optik",
-        precision: "±0.002mm",
-        year: "2024",
-        duration: "8 Monate",
-        material: "Invar 36",
-        specs: {
-            durchmesser: "Ø 280mm",
-            parallelitaet: "0.003mm",
-            ebenheit: "0.002mm",
-            oberflaeche: "Ra 0.2"
-        },
-        tags: ["Ultrapräzision", "Astronomie", "Invar"],
-        features: [
-            "Temperaturkompensation durch Invar-Werkstoff",
-            "Diamantfeinbearbeitung für optische Oberflächen",
-            "Interferometrische Vermessung",
-            "Klimatisierte Fertigung bei 20±0.5°C",
-            "Schwingungsgedämpfte Aufstellung"
-        ],
-        challenges: "Nanometer-Präzision über große Flächen bei minimalen thermischen Einflüssen",
-        outcome: "Spezifikationen übertroffen, Installation in Observatorium erfolgt",
-        attachments: []
-    },
-    {
-        id: 6,
-        title: "Hydraulik-Ventilblock",
-        image: "../../static/images/pexels1.jpg",
-        description: "Komplexer Mehrfach-Ventilblock mit über 40 Bohrungen und innenliegenden Kanälen für Baumaschine.",
-        category: "CNC-Fräsen",
-        badge: "Hydraulik",
-        precision: "±0.02mm",
-        year: "2024",
-        duration: "5 Monate",
-        material: "34CrNiMo6",
-        specs: {
-            abmessungen: "320x180x140mm",
-            bohrungen: "48 Stück",
-            druck: "350 bar",
-            gewicht: "42 kg"
-        },
-        tags: ["Hydraulik", "Komplex", "Hochdruck"],
-        features: [
-            "Tiefbohren mit Innenkühlung",
-            "Kreuzbohrungen mit Entgratung",
-            "Druckprüfung bei 525 bar (1.5x Betriebsdruck)",
-            "3D-koordinatengesteuerte Bohrpositionen",
-            "Oberflächenversiegelung gegen Korrosion"
-        ],
-        challenges: "Positionsgenaue Kreuzbohrungen ohne Kollision bei kompakter Bauweise",
-        outcome: "Alle Drucktests bestanden, Serie läuft mit null Reklamationen",
-        attachments: []
-    }
-];
+const initialProjectsData = [];
 
 // ============================================
-// LOGIN MODAL COMPONENT
+// LOGIN MODAL
 // ============================================
 
 function LoginModal({ isOpen, onClose, onLoginSuccess }) {
@@ -515,39 +315,34 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
         }
         
         if (!isEmailAuthorized(trimmedEmail)) {
-            setError('Diese E-Mail-Adresse ist nicht für den Import berechtigt. Bitte kontaktieren Sie den Administrator.');
+            setError('Diese E-Mail-Adresse ist nicht für den Import berechtigt.');
             return;
         }
         
         setLoading(true);
-        
         const code = generateVerificationCode();
         setGeneratedCode(code);
-        
         const result = await sendVerificationEmail(trimmedEmail, code);
-        
         setLoading(false);
         
         if (result.success) {
             setStep('verify');
             setResendTimer(60);
             if (result.devMode) {
-                setSuccess('ENTWICKLUNGSMODUS: Code wurde in der Browser-Konsole angezeigt (F12)');
+                setSuccess('ENTWICKLUNGSMODUS: Code in Browser-Konsole (F12)');
             } else {
-                setSuccess('Verifizierungscode wurde an ' + trimmedEmail + ' gesendet.');
+                setSuccess('Verifizierungscode wurde gesendet.');
             }
         } else {
-            setError('Fehler beim Senden der E-Mail. Bitte versuchen Sie es erneut.');
+            setError('Fehler beim Senden der E-Mail.');
         }
     };
     
     const handleCodeInput = (index, value) => {
         if (value && !/^\d$/.test(value)) return;
-        
         const newCode = [...verificationCode];
         newCode[index] = value;
         setVerificationCode(newCode);
-        
         if (value && index < 5) {
             codeInputRefs.current[index + 1]?.focus();
         }
@@ -569,11 +364,10 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
     
     const handleVerifyCode = () => {
         setError('');
-        
         const enteredCode = verificationCode.join('');
         
         if (enteredCode.length !== 6) {
-            setError('Bitte geben Sie den vollständigen 6-stelligen Code ein.');
+            setError('Bitte vollständigen Code eingeben.');
             return;
         }
         
@@ -582,7 +376,7 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
             onLoginSuccess(email.trim().toLowerCase());
             onClose();
         } else {
-            setError('Ungültiger Code. Bitte überprüfen Sie Ihre Eingabe.');
+            setError('Ungültiger Code.');
             setVerificationCode(['', '', '', '', '', '']);
             codeInputRefs.current[0]?.focus();
         }
@@ -590,27 +384,19 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
     
     const handleResendCode = async () => {
         if (resendTimer > 0) return;
-        
         setError('');
         setLoading(true);
-        
         const code = generateVerificationCode();
         setGeneratedCode(code);
-        
         const result = await sendVerificationEmail(email.trim().toLowerCase(), code);
-        
         setLoading(false);
         
         if (result.success) {
             setResendTimer(60);
             setVerificationCode(['', '', '', '', '', '']);
-            if (result.devMode) {
-                setSuccess('Neuer Code in der Browser-Konsole (F12)');
-            } else {
-                setSuccess('Neuer Code wurde gesendet.');
-            }
+            setSuccess(result.devMode ? 'Neuer Code in Konsole' : 'Neuer Code gesendet.');
         } else {
-            setError('Fehler beim Senden. Bitte versuchen Sie es erneut.');
+            setError('Fehler beim Senden.');
         }
     };
     
@@ -625,11 +411,9 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                     <div className="login-header">
                         <div className="lock-icon">🔐</div>
                         <h2>{step === 'email' ? 'Lehrer-Anmeldung' : 'Code eingeben'}</h2>
-                        <p>
-                            {step === 'email' 
-                                ? 'Melden Sie sich mit Ihrer autorisierten Schul-E-Mail an, um Projekte zu importieren.'
-                                : 'Geben Sie den 6-stelligen Code ein, den wir an Ihre E-Mail gesendet haben.'
-                            }
+                        <p>{step === 'email' 
+                            ? 'Melden Sie sich mit Ihrer autorisierten E-Mail an.'
+                            : 'Geben Sie den 6-stelligen Code ein.'}
                         </p>
                     </div>
                     
@@ -646,9 +430,7 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                                     autoFocus
                                 />
                             </div>
-                            
                             {error && <div className="error-message">⚠️ {error}</div>}
-                            
                             <button
                                 type="submit"
                                 className={`login-btn ${loading ? 'loading' : ''}`}
@@ -661,16 +443,10 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                     
                     {step === 'verify' && (
                         <div className="login-form">
-                            <button
-                                type="button"
-                                className="login-btn back-btn"
-                                onClick={() => setStep('email')}
-                            >
+                            <button type="button" className="login-btn back-btn" onClick={() => setStep('email')}>
                                 ← Zurück
                             </button>
-                            
                             {success && <div className="success-message">✓ {success}</div>}
-                            
                             <div className="verification-code-inputs" onPaste={handleCodePaste}>
                                 {verificationCode.map((digit, index) => (
                                     <input
@@ -687,9 +463,7 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                                     />
                                 ))}
                             </div>
-                            
-                            {error && <div className="error-message" style={{ textAlign: 'center', justifyContent: 'center' }}>⚠️ {error}</div>}
-                            
+                            {error && <div className="error-message" style={{ textAlign: 'center' }}>⚠️ {error}</div>}
                             <button
                                 type="button"
                                 className={`login-btn ${loading ? 'loading' : ''}`}
@@ -698,10 +472,9 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                             >
                                 Verifizieren
                             </button>
-                            
                             <div className="resend-code">
                                 {resendTimer > 0
-                                    ? <span className="resend-timer">Code erneut senden in {resendTimer}s</span>
+                                    ? <span className="resend-timer">Erneut senden in {resendTimer}s</span>
                                     : <button type="button" onClick={handleResendCode} disabled={loading}>Code erneut senden</button>
                                 }
                             </div>
@@ -718,7 +491,7 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
 }
 
 // ============================================
-// TAGS INPUT COMPONENT
+// TAGS INPUT
 // ============================================
 
 function TagsInput({ tags, setTags, placeholder }) {
@@ -761,23 +534,17 @@ function TagsInput({ tags, setTags, placeholder }) {
 }
 
 // ============================================
-// FEATURES EDITOR COMPONENT
+// FEATURES EDITOR
 // ============================================
 
 function FeaturesEditor({ features, setFeatures }) {
-    const addFeature = () => {
-        setFeatures([...features, '']);
-    };
-    
+    const addFeature = () => setFeatures([...features, '']);
     const updateFeature = (index, value) => {
         const newFeatures = [...features];
         newFeatures[index] = value;
         setFeatures(newFeatures);
     };
-    
-    const removeFeature = (index) => {
-        setFeatures(features.filter((_, i) => i !== index));
-    };
+    const removeFeature = (index) => setFeatures(features.filter((_, i) => i !== index));
     
     return (
         <div className="features-editor">
@@ -800,7 +567,7 @@ function FeaturesEditor({ features, setFeatures }) {
 }
 
 // ============================================
-// SPECS EDITOR COMPONENT
+// SPECS EDITOR
 // ============================================
 
 function SpecsEditor({ specs, setSpecs }) {
@@ -850,7 +617,7 @@ function SpecsEditor({ specs, setSpecs }) {
 }
 
 // ============================================
-// IMPORT MODAL COMPONENT
+// IMPORT MODAL
 // ============================================
 
 function ImportModal({ isOpen, onClose, onSave }) {
@@ -884,26 +651,22 @@ function ImportModal({ isOpen, onClose, onSave }) {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => {
-                handleChange('image', reader.result);
-            };
+            reader.onloadend = () => handleChange('image', reader.result);
             reader.readAsDataURL(file);
         }
     };
     
     const handleFileUpload = (e) => {
         const files = Array.from(e.target.files);
-        
         files.forEach(file => {
             const reader = new FileReader();
             reader.onloadend = () => {
-                const newAttachment = {
+                setAttachments(prev => [...prev, {
                     name: file.name,
                     size: (file.size / 1024).toFixed(1) + ' KB',
                     type: file.type,
                     data: reader.result
-                };
-                setAttachments(prev => [...prev, newAttachment]);
+                }]);
             };
             reader.readAsDataURL(file);
         });
@@ -914,28 +677,13 @@ function ImportModal({ isOpen, onClose, onSave }) {
     };
     
     const handleSubmit = () => {
-        const newProject = {
-            ...formData,
-            id: Date.now(),
-            attachments: attachments
-        };
+        const newProject = { ...formData, attachments };
         onSave(newProject);
-        // Reset form
         setFormData({
-            title: '',
-            description: '',
-            category: 'CNC-Drehen',
-            badge: '',
-            precision: '',
-            year: new Date().getFullYear().toString(),
-            duration: '',
-            material: '',
-            image: '',
-            tags: [],
-            specs: {},
-            features: [''],
-            challenges: '',
-            outcome: ''
+            title: '', description: '', category: 'CNC-Drehen', badge: '',
+            precision: '', year: new Date().getFullYear().toString(), duration: '',
+            material: '', image: '', tags: [], specs: {}, features: [''],
+            challenges: '', outcome: ''
         });
         setAttachments([]);
         onClose();
@@ -955,7 +703,6 @@ function ImportModal({ isOpen, onClose, onSave }) {
                     </div>
                     
                     <div className="form-grid">
-                        {/* Image Upload */}
                         <div className="form-group full-width">
                             <label>Projektbild</label>
                             <div
@@ -966,9 +713,7 @@ function ImportModal({ isOpen, onClose, onSave }) {
                                     ? <img src={formData.image} alt="Preview" />
                                     : <>
                                         <div className="upload-icon">📷</div>
-                                        <p className="upload-text">
-                                            Klicken zum <span>Hochladen</span> oder Drag & Drop
-                                        </p>
+                                        <p className="upload-text">Klicken zum <span>Hochladen</span></p>
                                     </>
                                 }
                             </div>
@@ -981,7 +726,6 @@ function ImportModal({ isOpen, onClose, onSave }) {
                             />
                         </div>
                         
-                        {/* Title */}
                         <div className="form-group full-width">
                             <label>Projekttitel</label>
                             <input
@@ -992,31 +736,26 @@ function ImportModal({ isOpen, onClose, onSave }) {
                             />
                         </div>
                         
-                        {/* Badge */}
                         <div className="form-group">
-                            <label>Badge (Hervorhebung)</label>
+                            <label>Badge</label>
                             <input
                                 type="text"
                                 value={formData.badge}
                                 onChange={(e) => handleChange('badge', e.target.value)}
-                                placeholder="z.B. Luft & Raumfahrt, Medizintechnik"
+                                placeholder="z.B. Luft & Raumfahrt"
                             />
                         </div>
                         
-                        {/* Category */}
                         <div className="form-group">
                             <label>Kategorie</label>
                             <select
                                 value={formData.category}
                                 onChange={(e) => handleChange('category', e.target.value)}
                             >
-                                {categories.map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
+                                {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                             </select>
                         </div>
                         
-                        {/* Precision */}
                         <div className="form-group">
                             <label>Präzision</label>
                             <input
@@ -1027,7 +766,6 @@ function ImportModal({ isOpen, onClose, onSave }) {
                             />
                         </div>
                         
-                        {/* Year */}
                         <div className="form-group">
                             <label>Jahr</label>
                             <input
@@ -1038,7 +776,6 @@ function ImportModal({ isOpen, onClose, onSave }) {
                             />
                         </div>
                         
-                        {/* Duration */}
                         <div className="form-group">
                             <label>Dauer</label>
                             <input
@@ -1049,28 +786,25 @@ function ImportModal({ isOpen, onClose, onSave }) {
                             />
                         </div>
                         
-                        {/* Material */}
                         <div className="form-group">
                             <label>Material</label>
                             <input
                                 type="text"
                                 value={formData.material}
                                 onChange={(e) => handleChange('material', e.target.value)}
-                                placeholder="z.B. Inconel 718, Titan Grade 5"
+                                placeholder="z.B. Inconel 718"
                             />
                         </div>
                         
-                        {/* Description */}
                         <div className="form-group full-width">
                             <label>Beschreibung</label>
                             <textarea
                                 value={formData.description}
                                 onChange={(e) => handleChange('description', e.target.value)}
-                                placeholder="Kurze Projektbeschreibung..."
+                                placeholder="Projektbeschreibung..."
                             />
                         </div>
                         
-                        {/* Tags */}
                         <div className="form-group full-width">
                             <label>Tags (Enter zum Hinzufügen)</label>
                             <TagsInput
@@ -1080,10 +814,8 @@ function ImportModal({ isOpen, onClose, onSave }) {
                             />
                         </div>
                         
-                        {/* Section Divider */}
                         <div className="form-section-title">Technische Spezifikationen</div>
                         
-                        {/* Specs */}
                         <div className="form-group full-width">
                             <label>Spezifikationen</label>
                             <SpecsEditor
@@ -1092,19 +824,16 @@ function ImportModal({ isOpen, onClose, onSave }) {
                             />
                         </div>
                         
-                        {/* Section Divider */}
                         <div className="form-section-title">Projektdetails</div>
                         
-                        {/* Features */}
                         <div className="form-group full-width">
                             <label>Features & Besonderheiten</label>
                             <FeaturesEditor
                                 features={formData.features}
-                                setFeatures={(features) => handleChange('features', features)}
+                                setFeatures={(f) => handleChange('features', f)}
                             />
                         </div>
                         
-                        {/* Challenges */}
                         <div className="form-group full-width">
                             <label>Herausforderungen</label>
                             <textarea
@@ -1114,7 +843,6 @@ function ImportModal({ isOpen, onClose, onSave }) {
                             />
                         </div>
                         
-                        {/* Outcome */}
                         <div className="form-group full-width">
                             <label>Ergebnis</label>
                             <textarea
@@ -1124,7 +852,6 @@ function ImportModal({ isOpen, onClose, onSave }) {
                             />
                         </div>
                         
-                        {/* File Attachments */}
                         <div className="form-group full-width">
                             <label>Dateien anhängen</label>
                             <div className="file-attachments">
@@ -1157,12 +884,8 @@ function ImportModal({ isOpen, onClose, onSave }) {
                     </div>
                     
                     <div className="form-actions">
-                        <button type="button" className="btn btn-secondary" onClick={onClose}>
-                            Abbrechen
-                        </button>
-                        <button type="button" className="btn btn-primary" onClick={handleSubmit}>
-                            Projekt speichern
-                        </button>
+                        <button type="button" className="btn btn-secondary" onClick={onClose}>Abbrechen</button>
+                        <button type="button" className="btn btn-primary" onClick={handleSubmit}>Projekt speichern</button>
                     </div>
                 </div>
             </div>
@@ -1171,27 +894,177 @@ function ImportModal({ isOpen, onClose, onSave }) {
 }
 
 // ============================================
-// MAIN APP COMPONENT
+// PROJECT MODAL (mit Admin-Buttons)
+// ============================================
+
+function ProjectModal({ project, onClose, isAuthenticated, onDelete, onToggleVisibility }) {
+    if (!project) return null;
+    
+    return (
+        <div className={`modal-overlay ${project ? 'active' : ''}`} onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-close" onClick={onClose}>×</div>
+                <div className="modal-image" style={{backgroundImage: `url(${project.image})`}}>
+                    <img src={project.image} alt={project.title} />
+                </div>
+                <div className="modal-body">
+                    <div className="modal-header">
+                        <h2 className="modal-title">{project.title}</h2>
+                        <p className="modal-description">{project.description}</p>
+                        
+                        {isAuthenticated && (
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+                                <button type="button" className="btn btn-secondary" onClick={() => onDelete(project)}>
+                                    🗑 Löschen
+                                </button>
+                                <button type="button" className="btn btn-primary" onClick={() => onToggleVisibility(project)}>
+                                    {(project.visibility || 'public') === 'restricted' ? '🔓 Öffentlich machen' : '🔒 Sperrvermerk'}
+                                </button>
+                            </div>
+                        )}
+                        
+                        <div className="project-tags" style={{ marginTop: '1rem' }}>
+                            {(project.tags || []).map((tag, i) => (
+                                <span key={i} className="project-tag">{tag}</span>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <div className="modal-details">
+                        <div className="detail-item">
+                            <div className="detail-label">Jahr</div>
+                            <div className="detail-value">{project.year}</div>
+                        </div>
+                        <div className="detail-item">
+                            <div className="detail-label">Dauer</div>
+                            <div className="detail-value">{project.duration}</div>
+                        </div>
+                        <div className="detail-item">
+                            <div className="detail-label">Material</div>
+                            <div className="detail-value">{project.material}</div>
+                        </div>
+                        <div className="detail-item">
+                            <div className="detail-label">Präzision</div>
+                            <div className="detail-value">{project.precision}</div>
+                        </div>
+                    </div>
+
+                    {project.specs && Object.keys(project.specs).length > 0 && (
+                        <div className="modal-section">
+                            <h3>Technische Spezifikationen</h3>
+                            <div className="specs-grid">
+                                {Object.entries(project.specs).map(([key, value]) => (
+                                    <div key={key} className="spec-item">
+                                        <div className="spec-label">{key}</div>
+                                        <div className="spec-value">{value}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {project.features && project.features.filter(f => f).length > 0 && (
+                        <div className="modal-section">
+                            <h3>Features & Besonderheiten</h3>
+                            <ul>
+                                {project.features.filter(f => f).map((feature, i) => (
+                                    <li key={i}>{feature}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {project.challenges && (
+                        <div className="modal-section">
+                            <h3>Herausforderungen</h3>
+                            <p style={{ color: 'var(--text-muted)', lineHeight: '1.8', fontSize: '1.05rem', paddingLeft: '1.5rem' }}>
+                                {project.challenges}
+                            </p>
+                        </div>
+                    )}
+
+                    {project.outcome && (
+                        <div className="modal-section">
+                            <h3>Ergebnis</h3>
+                            <p style={{ color: 'var(--text-muted)', lineHeight: '1.8', fontSize: '1.05rem', paddingLeft: '1.5rem' }}>
+                                {project.outcome}
+                            </p>
+                        </div>
+                    )}
+                    
+                    {project.attachments && project.attachments.length > 0 && (
+                        <div className="modal-section">
+                            <h3>Anhänge</h3>
+                            <div className="attachments-list">
+                                {project.attachments.map((file, i) => (
+                                    <div key={i} className="attachment-item">
+                                        <div className="attachment-info">
+                                            <span className="attachment-icon">
+                                                {file.type?.includes('pdf') ? '📄' :
+                                                 file.type?.includes('image') ? '🖼️' :
+                                                 file.type?.includes('video') ? '🎬' : '📎'}
+                                            </span>
+                                            <div className="attachment-details">
+                                                <span className="attachment-name">{file.name}</span>
+                                                <span className="attachment-size">{file.size}</span>
+                                            </div>
+                                        </div>
+                                        <a
+                                            className="download-btn"
+                                            href={file.data}
+                                            download={file.name}
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            ⬇
+                                        </a>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ============================================
+// MAIN APP (mit MongoDB + module=drehen)
 // ============================================
 
 function App() {
-    const [projects, setProjects] = useState(initialProjectsData);
+    const [projects, setProjects] = useState([]);
     const [activeFilter, setActiveFilter] = useState('Alle');
     const [selectedProject, setSelectedProject] = useState(null);
     const [showImportModal, setShowImportModal] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
-    
-    // Auth State
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userEmail, setUserEmail] = useState('');
-    
-    // Check for existing session on mount
+
+    // ========== MongoDB Integration ==========
+    const reloadProjects = async (emailOrEmpty) => {
+        try {
+            const res = await fetch("/api/projects?module=drehen", {
+                headers: emailOrEmpty ? { "X-User-Email": emailOrEmpty } : {}
+            });
+            const data = await res.json();
+            setProjects(data);
+        } catch (e) {
+            console.error("Konnte Projekte nicht laden:", e);
+            setProjects(initialProjectsData);
+        }
+    };
+
     useEffect(() => {
         const session = loadSession();
+        const email = session?.email || "";
+
         if (session) {
             setIsAuthenticated(true);
             setUserEmail(session.email);
         }
+
+        reloadProjects(email);
     }, []);
 
     const categories = ['Alle', 'CNC-Drehen', 'CNC-Fräsen'];
@@ -1200,11 +1073,98 @@ function App() {
         ? projects 
         : projects.filter(p => p.category === activeFilter);
 
-    const addProject = (newProject) => {
-        setProjects(prev => [newProject, ...prev]);
+    // ========== CRUD Operations ==========
+    const addProject = async (newProject) => {
+        try {
+            if (!userEmail) {
+                alert("Nicht angemeldet.");
+                return;
+            }
+
+            const res = await fetch("/api/projects", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-User-Email": userEmail
+                },
+                body: JSON.stringify({ ...newProject, module: "drehen" }),
+            });
+
+            const saved = await res.json();
+
+            if (!res.ok) {
+                console.error(saved);
+                alert(saved?.error || "Speichern fehlgeschlagen");
+                return;
+            }
+
+            setProjects(prev => [saved, ...prev]);
+        } catch (e) {
+            console.error("Speichern fehlgeschlagen:", e);
+            alert("Speichern fehlgeschlagen (siehe Konsole).");
+        }
+    };
+
+    const deleteProject = async (project) => {
+        try {
+            if (!userEmail) return alert("Nicht angemeldet.");
+
+            const ok = confirm(`Projekt wirklich löschen?\n\n"${project.title}"`);
+            if (!ok) return;
+
+            const res = await fetch(`/api/projects/${project.id}`, {
+                method: "DELETE",
+                headers: { "X-User-Email": userEmail }
+            });
+
+            const out = await res.json();
+
+            if (!res.ok) {
+                console.error(out);
+                alert(out?.error || "Löschen fehlgeschlagen");
+                return;
+            }
+
+            setProjects(prev => prev.filter(p => p.id !== project.id));
+            setSelectedProject(null);
+        } catch (e) {
+            console.error("Löschen fehlgeschlagen:", e);
+            alert("Löschen fehlgeschlagen (siehe Konsole).");
+        }
+    };
+
+    const toggleVisibility = async (project) => {
+        try {
+            if (!userEmail) return alert("Nicht angemeldet.");
+
+            const current = project.visibility || "public";
+            const next = current === "restricted" ? "public" : "restricted";
+
+            const res = await fetch(`/api/projects/${project.id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-User-Email": userEmail
+                },
+                body: JSON.stringify({ visibility: next })
+            });
+
+            const updated = await res.json();
+
+            if (!res.ok) {
+                console.error(updated);
+                alert(updated?.error || "Update fehlgeschlagen");
+                return;
+            }
+
+            setProjects(prev => prev.map(p => (p.id === updated.id ? updated : p)));
+            setSelectedProject(updated);
+        } catch (e) {
+            console.error("Toggle fehlgeschlagen:", e);
+            alert("Toggle fehlgeschlagen (siehe Konsole).");
+        }
     };
     
-    // Import Click Handler
     const handleImportClick = () => {
         if (isAuthenticated) {
             setShowImportModal(true);
@@ -1213,18 +1173,20 @@ function App() {
         }
     };
     
-    // Login Success Handler
-    const handleLoginSuccess = (email) => {
+    const handleLoginSuccess = async (email) => {
         setIsAuthenticated(true);
         setUserEmail(email);
+        setShowLoginModal(false);
         setShowImportModal(true);
+        await reloadProjects(email);
     };
     
-    // Logout Handler
-    const handleLogout = () => {
+    const handleLogout = async () => {
         clearSession();
         setIsAuthenticated(false);
         setUserEmail('');
+        setSelectedProject(null);
+        await reloadProjects("");
     };
     
     const userName = userEmail ? getNameFromEmail(userEmail) : '';
@@ -1232,7 +1194,6 @@ function App() {
 
     return (
         <>
-            {/* Navigation with Import and User Badge */}
             <nav id="navbar">
                 <div className="nav-content">
                     <div className="logo">🔧 IEM</div>
@@ -1315,7 +1276,9 @@ function App() {
                                 >
                                     <div className="project-image" style={{backgroundImage: `url(${project.image})`}}>
                                         <img src={project.image} alt={project.title} />
-                                        <div className="project-badge">{project.badge}</div>
+                                        <div className="project-badge">
+                                            {project.visibility === 'restricted' ? '🔒 Gesperrt' : project.badge}
+                                        </div>
                                         <div className="precision-indicator">{project.precision}</div>
                                     </div>
                                     <div className="project-content">
@@ -1336,7 +1299,7 @@ function App() {
                                             </div>
                                         </div>
                                         <div className="project-tags">
-                                            {project.tags.map((tag, i) => (
+                                            {(project.tags || []).map((tag, i) => (
                                                 <span key={i} className="project-tag">{tag}</span>
                                             ))}
                                         </div>
@@ -1345,130 +1308,30 @@ function App() {
                             ))}
                         </div>
                     </div>
+                    
+                    {filteredProjects.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
+                            <h3>Keine Projekte gefunden</h3>
+                            <p>Fügen Sie neue Projekte hinzu oder wählen Sie einen anderen Filter.</p>
+                        </div>
+                    )}
                 </div>
             </section>
 
-            {/* Project Detail Modal */}
-            <div className={`modal-overlay ${selectedProject ? 'active' : ''}`} onClick={() => setSelectedProject(null)}>
-                {selectedProject && (
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-close" onClick={() => setSelectedProject(null)}>×</div>
-                        <div className="modal-image" style={{backgroundImage: `url(${selectedProject.image})`}}>
-                            <img src={selectedProject.image} alt={selectedProject.title} />
-                        </div>
-                        <div className="modal-body">
-                            <div className="modal-header">
-                                <h2 className="modal-title">{selectedProject.title}</h2>
-                                <p className="modal-description">{selectedProject.description}</p>
-                                <div className="project-tags">
-                                    {selectedProject.tags.map((tag, i) => (
-                                        <span key={i} className="project-tag">{tag}</span>
-                                    ))}
-                                </div>
-                            </div>
-                            
-                            <div className="modal-details">
-                                <div className="detail-item">
-                                    <div className="detail-label">Jahr</div>
-                                    <div className="detail-value">{selectedProject.year}</div>
-                                </div>
-                                <div className="detail-item">
-                                    <div className="detail-label">Dauer</div>
-                                    <div className="detail-value">{selectedProject.duration}</div>
-                                </div>
-                                <div className="detail-item">
-                                    <div className="detail-label">Material</div>
-                                    <div className="detail-value">{selectedProject.material}</div>
-                                </div>
-                                <div className="detail-item">
-                                    <div className="detail-label">Präzision</div>
-                                    <div className="detail-value">{selectedProject.precision}</div>
-                                </div>
-                            </div>
+            <ProjectModal
+                project={selectedProject}
+                onClose={() => setSelectedProject(null)}
+                isAuthenticated={isAuthenticated}
+                onDelete={deleteProject}
+                onToggleVisibility={toggleVisibility}
+            />
 
-                            <div className="modal-section">
-                                <h3>Technische Spezifikationen</h3>
-                                <div className="specs-grid">
-                                    {Object.entries(selectedProject.specs).map(([key, value]) => (
-                                        <div key={key} className="spec-item">
-                                            <div className="spec-label">{key}</div>
-                                            <div className="spec-value">{value}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="modal-section">
-                                <h3>Features & Besonderheiten</h3>
-                                <ul>
-                                    {selectedProject.features.filter(f => f).map((feature, i) => (
-                                        <li key={i}>{feature}</li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            <div className="modal-section">
-                                <h3>Herausforderungen</h3>
-                                <p style={{ color: 'var(--text-muted)', lineHeight: '1.8', fontSize: '1.05rem', paddingLeft: '1.5rem' }}>
-                                    {selectedProject.challenges}
-                                </p>
-                            </div>
-
-                            <div className="modal-section">
-                                <h3>Ergebnis</h3>
-                                <p style={{ color: 'var(--text-muted)', lineHeight: '1.8', fontSize: '1.05rem', paddingLeft: '1.5rem' }}>
-                                    {selectedProject.outcome}
-                                </p>
-                            </div>
-                            
-                            {selectedProject.attachments && selectedProject.attachments.length > 0 && (
-                                <div className="modal-section">
-                                    <h3>Anhänge</h3>
-                                    <div className="attachments-list">
-                                        {selectedProject.attachments.map((file, i) => (
-                                            <div key={i} className="attachment-item">
-                                                <div className="attachment-info">
-                                                    <span className="attachment-icon">
-                                                        {file.type?.includes('pdf') ? '📄' :
-                                                         file.type?.includes('image') ? '🖼️' :
-                                                         file.type?.includes('video') ? '🎬' : '📎'}
-                                                    </span>
-                                                    <div className="attachment-details">
-                                                        <span className="attachment-name">{file.name}</span>
-                                                        <span className="attachment-size">{file.size}</span>
-                                                    </div>
-                                                </div>
-                                                <a
-                                                    className="download-btn"
-                                                    href={file.data}
-                                                    download={file.name}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    title="Herunterladen"
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                                        <polyline points="7 10 12 15 17 10" />
-                                                        <line x1="12" y1="15" x2="12" y2="3" />
-                                                    </svg>
-                                                </a>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {/* Import Modal */}
             <ImportModal
                 isOpen={showImportModal}
                 onClose={() => setShowImportModal(false)}
                 onSave={addProject}
             />
             
-            {/* Login Modal */}
             <LoginModal
                 isOpen={showLoginModal}
                 onClose={() => setShowLoginModal(false)}
@@ -1504,8 +1367,8 @@ function App() {
                     <div className="footer-column">
                         <h4>Kontakt</h4>
                         <ul>
-                            <li>mehmet.saygin@student.htldornbirn.com</li>
-                            <li>+43 999 99999</li>
+                            <li>mehmet.saygin@student.htldornbirn.at</li>
+                            <li>HTL Dornbirn</li>
                             <li>Höchsterstraße 73, 6850 Dornbirn</li>
                         </ul>
                     </div>

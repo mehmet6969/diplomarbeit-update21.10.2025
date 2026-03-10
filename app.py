@@ -1,9 +1,84 @@
-import random
+import os
 from flask import Flask, render_template, request, jsonify
-from fuzzywuzzy import fuzz
+from pymongo import MongoClient
+from bson import ObjectId
 
 app = Flask(__name__)
 
+# MongoDB Verbindung
+client = MongoClient(os.environ["MONGODB_URI"])
+db = client["diplomarbeit"]
+items = db["items"]
+print("Mongo ping:", client.admin.command("ping"))
+print("Mongo host:", client.address)
+
+# —————————————————————————————————————————————————————————————————————
+# Helper Funktionen
+# —————————————————————————————————————————————————————————————————————
+
+def doc_to_json(d):
+    """Konvertiert MongoDB Dokument zu JSON-kompatiblem Dict"""
+    d["id"] = str(d["_id"])
+    del d["_id"]
+    return d
+
+# —————————————————————————————————————————————————————————————————————
+# API-Routen
+# —————————————————————————————————————————————————————————————————————
+
+@app.get("/api/projects")
+def api_get_projects():
+    """Projekte abrufen (optional gefiltert nach Modul)"""
+    module = request.args.get("module")
+    query = {"module": module} if module else {}
+    docs = list(items.find(query).sort("_id", -1))
+    return jsonify([doc_to_json(d) for d in docs])
+
+@app.post("/api/projects")
+def api_add_project():
+    """Neues Projekt hinzufügen"""
+    data = request.get_json(force=True) or {}
+    if not data:
+        return jsonify({"error": "no data"}), 400
+
+    # Keine eigene id in Mongo speichern (du bekommst _id)
+    data.pop("id", None)
+
+    res = items.insert_one(data)
+    saved = items.find_one({"_id": res.inserted_id})
+    return jsonify(doc_to_json(saved)), 201
+
+@app.delete("/api/projects/<project_id>")
+def api_delete_project(project_id):
+    """Projekt löschen"""
+    try:
+        oid = ObjectId(project_id)
+    except Exception:
+        return jsonify({"error": "invalid id"}), 400
+
+    r = items.delete_one({"_id": oid})
+    return jsonify({"deleted": r.deleted_count == 1})
+
+@app.patch("/api/projects/<project_id>")
+def api_update_project(project_id):
+    """Projekt aktualisieren (z.B. Sichtbarkeit ändern)"""
+    try:
+        oid = ObjectId(project_id)
+    except Exception:
+        return jsonify({"error": "invalid id"}), 400
+    
+    data = request.get_json(force=True) or {}
+    if not data:
+        return jsonify({"error": "no data"}), 400
+    
+    # Update durchführen
+    items.update_one({"_id": oid}, {"$set": data})
+    updated = items.find_one({"_id": oid})
+    
+    if not updated:
+        return jsonify({"error": "not found"}), 404
+    
+    return jsonify(doc_to_json(updated))
 
 # —————————————————————————————————————————————————————————————————————
 # Seiten-Routen
@@ -80,6 +155,10 @@ def cae_info():
 @app.route('/cae_projekte')
 def cae_projekte():
     return render_template('Projekte/cae_projekte.html')
+
+# —————————————————————————————————————————————————————————————————————
+# App starten
+# —————————————————————————————————————————————————————————————————————
 
 if __name__ == '__main__':
     app.run(debug=True)

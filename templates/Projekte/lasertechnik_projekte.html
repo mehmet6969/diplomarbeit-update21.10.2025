@@ -12,18 +12,18 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- EmailJS für E-Mail-Verifizierung -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
     <nav id="navbar">
         <div class="nav-content">
-            <div class="logo">
-                ⚡ Laser Lab
-            </div>
+            <div class="logo">⚡ Laser Lab</div>
             <ul class="nav-links">
                 <li><a href="{{ url_for('home') }}" class="nav-link">Home</a></li>
                 <li><a href="{{ url_for('lasertechnik_projekte') }}" class="nav-link active">Projekte</a></li>
                 <li><a href="{{ url_for('lasertechnik_info') }}" class="nav-link">Info</a></li>
-                <li><a href="#" class="nav-link">Weiteres</a></li>
             </ul>
         </div>
     </nav>

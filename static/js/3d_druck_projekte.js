@@ -11,10 +11,12 @@ const EMAILJS_CONFIG = {
 };
 
 const AUTHORIZED_EMAILS = [
-    'mehmet.saygin@student.htldornbirn.at',
-    'teacher1@htldornbirn.at',
-    'teacher2@htldornbirn.at'
-];
+        'mehmet.saygin@student.htldornbirn.at',
+        'msaygin29@gmail.com',
+        'direktor@htldornbirn.at',
+        'dominik.ferles@student.htldornbirn.at',
+        'kenan.bayar@htldornbirn.at'
+    ];
 
 // EmailJS initialisieren
 if (typeof emailjs !== 'undefined') {
@@ -48,19 +50,19 @@ function loadSession() {
     try {
         const sessionData = localStorage.getItem('3ddruck_auth_session');
         if (!sessionData) return null;
-        
+
         const session = JSON.parse(sessionData);
-        
+
         if (Date.now() > session.expiresAt) {
             localStorage.removeItem('3ddruck_auth_session');
             return null;
         }
-        
+
         if (!isEmailAuthorized(session.email)) {
             localStorage.removeItem('3ddruck_auth_session');
             return null;
         }
-        
+
         return session;
     } catch (e) {
         localStorage.removeItem('3ddruck_auth_session');
@@ -86,7 +88,7 @@ async function sendVerificationEmail(email, code) {
         console.error('EmailJS nicht geladen');
         return { success: false, error: 'EmailJS nicht verfügbar' };
     }
-    
+
     const expiryTime = new Date(Date.now() + 10 * 60 * 1000);
     const timeString = expiryTime.toLocaleString('de-AT', {
         day: '2-digit',
@@ -95,13 +97,13 @@ async function sendVerificationEmail(email, code) {
         hour: '2-digit',
         minute: '2-digit'
     });
-    
+
     const templateParams = {
-        email: email,             
-        passcode: code,           
+        email: email,
+        passcode: code,
         time: timeString
     };
-    
+
     try {
         await emailjs.send(
             EMAILJS_CONFIG.serviceId,
@@ -115,7 +117,10 @@ async function sendVerificationEmail(email, code) {
     }
 }
 
-// Initial Project Data
+// ============================================
+// DEMO FALLBACK (optional)
+// ============================================
+
 const initialProjectsData = [
     {
         id: 1,
@@ -140,133 +145,24 @@ const initialProjectsData = [
         challenges: "Kombination von starren und flexiblen Materialien in einem Druck mit biokompatiblen Eigenschaften",
         outcome: "Erfolgreiche Anpassung, deutlich günstiger als konventionelle Prothesen",
         attachments: []
-    },
-    {
-        id: 2,
-        title: "Architekturmodell Smart City",
-        image: "../../static/images/3dpic_2.jpg",
-        description: "Detailliertes Stadtmodell mit integrierten LED-Beleuchtungen, gedruckt in mehreren Materialien für Präsentationszwecke.",
-        category: "SLA",
-        badge: "Architektur",
-        complexity: 4,
-        year: "2024",
-        duration: "4 Monate",
-        material: "Resin transparent + weiß",
-        technologies: ["SLA High-Resolution", "Multi-Material", "LED Integration", "Aushärtung"],
-        tags: ["Architektur", "Präsentation", "LED"],
-        features: [
-            "0.025mm Schichtauflösung für Details",
-            "Transparente Gebäude mit LED-Beleuchtung",
-            "Maßstab 1:500",
-            "Modularer Aufbau für Transport",
-            "UV-gehärtete Oberfläche"
-        ],
-        challenges: "Extreme Detailgenauigkeit bei gleichzeitiger Stabilität und Integration von Elektronik",
-        outcome: "Preisgekröntes Modell bei Architektur-Wettbewerb",
-        attachments: []
-    },
-    {
-        id: 3,
-        title: "Leichtbau-Drohnenrahmen",
-        image: "../../static/images/3dpic_3.jpg",
-        description: "Optimierter Quadcopter-Frame aus Carbon-verstärktem Nylon für maximale Stabilität bei minimalem Gewicht.",
-        category: "FDM",
-        badge: "Luft & Raumfahrt",
-        complexity: 5,
-        year: "2024",
-        duration: "5 Monate",
-        material: "Carbon-Nylon",
-        technologies: ["FDM High-Temp", "Generative Design", "FEM-Analyse", "Vibrationsdämpfung"],
-        tags: ["Aerospace", "Leichtbau", "Carbon"],
-        features: [
-            "Gewichtsreduzierung um 40%",
-            "Carbon-Faserverstärkung",
-            "Integrierte Vibrationsdämpfer",
-            "Crash-optimierte Struktur",
-            "Modular erweiterbar"
-        ],
-        challenges: "Balance zwischen minimalem Gewicht und ausreichender Steifigkeit bei hohen Vibrationen",
-        outcome: "Flugzeit um 25% erhöht, erfolgreich im Dauereinsatz",
-        attachments: []
-    },
-    {
-        id: 4,
-        title: "Schmuckkollektion Organics",
-        image: "../../static/images/3dpic_1.jpg",
-        description: "Filigrane Schmuckstücke mit organischen Formen, gedruckt in Castable Resin für Edelmetall-Guss.",
-        category: "SLA",
-        badge: "Schmuck",
-        complexity: 5,
-        year: "2025",
-        duration: "3 Monate",
-        material: "Castable Resin",
-        technologies: ["SLA Ultra-Detail", "Lost-Wax Casting", "Post-Processing", "Polieren"],
-        tags: ["Schmuck", "Kunst", "Guss"],
-        features: [
-            "Detailauflösung unter 0.01mm",
-            "Komplexe organische Geometrien",
-            "Brennbare Harze für Guss",
-            "Perfekte Oberflächenqualität",
-            "Unikate durch parametrisches Design"
-        ],
-        challenges: "Ultrafeine Details ohne Stützstrukturen und perfekte Brenneigenschaften",
-        outcome: "Erfolgreiche Kollektion, 15 Stück verkauft",
-        attachments: []
-    },
-    {
-        id: 5,
-        title: "Ergonomischer Werkzeuggriff",
-        image: "../../static/images/3dpic_2.jpg",
-        description: "Individuell angepasster Werkzeuggriff aus weichem TPU für Spezialwerkzeug mit Dauerbelastung.",
-        category: "FDM",
-        badge: "Industrie",
-        complexity: 3,
-        year: "2024",
-        duration: "2 Monate",
-        material: "TPU Shore 85A",
-        technologies: ["FDM Flexible", "Ergonomie-Scan", "Infill-Optimierung", "Grip-Texture"],
-        tags: ["Ergonomie", "Industrie", "Custom"],
-        features: [
-            "Handscanning für perfekte Passform",
-            "Griffige Oberflächentextur",
-            "Shore 85A für optimale Dämpfung",
-            "Variable Wandstärken",
-            "Chemikalienbeständig"
-        ],
-        challenges: "Gleichmäßige TPU-Verarbeitung ohne Warping bei komplexer Geometrie",
-        outcome: "Reduzierung von Ermüdungserscheinungen um 60%",
-        attachments: []
-    },
-    {
-        id: 6,
-        title: "Funktionsprototyp E-Motor-Gehäuse",
-        image: "../../static/images/3dpic_3.jpg",
-        description: "Hitzebeständiges Gehäuse für E-Motor-Prototyp mit integrierten Kühlrippen und Kabelführungen.",
-        category: "FDM",
-        badge: "Automotive",
-        complexity: 4,
-        year: "2025",
-        duration: "4 Monate",
-        material: "PC-ABS + PETG",
-        technologies: ["FDM Engineering", "Thermal Management", "Multi-Material", "Gewinde-Insert"],
-        tags: ["Automotive", "Prototyping", "Thermal"],
-        features: [
-            "Temperaturbeständig bis 120°C",
-            "Optimierte Kühlrippen-Geometrie",
-            "Integrierte Kabelkanäle",
-            "Gewinde-Inserts für Verschraubung",
-            "CFD-simulierte Luftführung"
-        ],
-        challenges: "Hohe Temperaturen bei gleichzeitiger Maßhaltigkeit und Integration von Metallteilen",
-        outcome: "Prototyp erfolgreich getestet, Serie in Vorbereitung",
-        attachments: []
     }
 ];
 
+// ============================================
+// THREE.JS SCENE (dein ThreeScene war in anderem File; falls du es hast -> lassen)
+// Hier als NO-OP fallback, damit der Code nicht crasht, wenn ThreeScene nicht existiert.
+// ============================================
+function ThreeScene() {
+    return <div style={{ width: '100%', height: '100%' }} />;
+}
+
+// ============================================
 // Tags Input Component
+// ============================================
+
 function TagsInput({ tags, setTags, placeholder }) {
     const [inputValue, setInputValue] = useState('');
-    
+
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' || e.key === ',') {
             e.preventDefault();
@@ -279,11 +175,11 @@ function TagsInput({ tags, setTags, placeholder }) {
             setTags(tags.slice(0, -1));
         }
     };
-    
+
     const removeTag = (indexToRemove) => {
         setTags(tags.filter((_, index) => index !== indexToRemove));
     };
-    
+
     return (
         <div className="tags-input-container">
             {tags.map((tag, index) => (
@@ -303,22 +199,25 @@ function TagsInput({ tags, setTags, placeholder }) {
     );
 }
 
+// ============================================
 // Features Editor Component
+// ============================================
+
 function FeaturesEditor({ features, setFeatures }) {
     const addFeature = () => {
         setFeatures([...features, '']);
     };
-    
+
     const updateFeature = (index, value) => {
         const newFeatures = [...features];
         newFeatures[index] = value;
         setFeatures(newFeatures);
     };
-    
+
     const removeFeature = (index) => {
         setFeatures(features.filter((_, i) => i !== index));
     };
-    
+
     return (
         <div className="features-editor">
             {features.map((feature, index) => (
@@ -339,7 +238,10 @@ function FeaturesEditor({ features, setFeatures }) {
     );
 }
 
+// ============================================
 // Login Modal Component
+// ============================================
+
 function LoginModal({ isOpen, onClose, onSuccess }) {
     const [step, setStep] = useState('email');
     const [email, setEmail] = useState('');
@@ -405,7 +307,7 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
 
     const handleCodeChange = (index, value) => {
         if (value.length > 1) return;
-        
+
         const newCode = [...verificationCode];
         newCode[index] = value;
         setVerificationCode(newCode);
@@ -424,8 +326,9 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
     const verifyCode = () => {
         const enteredCode = verificationCode.join('');
         if (enteredCode === generatedCode) {
-            saveSession(email.trim().toLowerCase());
-            onSuccess(email.trim().toLowerCase());
+            const okEmail = email.trim().toLowerCase();
+            saveSession(okEmail);
+            onSuccess(okEmail);
             onClose();
         } else {
             setError('Ungültiger Code. Bitte versuchen Sie es erneut.');
@@ -438,7 +341,7 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
         if (resendTimer > 0) return;
         setError('');
         setLoading(true);
-        
+
         const code = generateVerificationCode();
         setGeneratedCode(code);
         const result = await sendVerificationEmail(email.trim().toLowerCase(), code);
@@ -484,7 +387,6 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="lehrer@htldornbirn.at"
-                                    onKeyPress={(e) => e.key === 'Enter' && handleEmailSubmit(e)}
                                 />
                             </div>
                             {error && <p className="error-message">{error}</p>}
@@ -530,8 +432,8 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
                             </button>
                             <div className="resend-code">
                                 <button onClick={handleResend} disabled={resendTimer > 0}>
-                                    {resendTimer > 0 
-                                        ? `Code erneut senden (${resendTimer}s)` 
+                                    {resendTimer > 0
+                                        ? `Code erneut senden (${resendTimer}s)`
                                         : 'Code erneut senden'}
                                 </button>
                             </div>
@@ -543,7 +445,10 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
     );
 }
 
+// ============================================
 // Import Modal Component
+// ============================================
+
 function ImportModal({ isOpen, onClose, onSave }) {
     const [formData, setFormData] = useState({
         title: '',
@@ -564,13 +469,13 @@ function ImportModal({ isOpen, onClose, onSave }) {
     const [attachments, setAttachments] = useState([]);
     const fileInputRef = useRef(null);
     const imageInputRef = useRef(null);
-    
+
     const categories = ['FDM', 'SLA', 'Sonstiges'];
-    
+
     const handleChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
-    
+
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -581,7 +486,7 @@ function ImportModal({ isOpen, onClose, onSave }) {
             reader.readAsDataURL(file);
         }
     };
-    
+
     const handleFileUpload = (e) => {
         const files = Array.from(e.target.files);
         const newAttachments = files.map(file => ({
@@ -591,19 +496,18 @@ function ImportModal({ isOpen, onClose, onSave }) {
         }));
         setAttachments(prev => [...prev, ...newAttachments]);
     };
-    
+
     const removeAttachment = (index) => {
         setAttachments(prev => prev.filter((_, i) => i !== index));
     };
-    
+
     const handleSubmit = () => {
         const newProject = {
             ...formData,
-            id: Date.now(),
             attachments: attachments
         };
         onSave(newProject);
-        // Reset form
+
         setFormData({
             title: '',
             description: '',
@@ -623,9 +527,9 @@ function ImportModal({ isOpen, onClose, onSave }) {
         setAttachments([]);
         onClose();
     };
-    
+
     if (!isOpen) return null;
-    
+
     return (
         <div className={`modal-overlay ${isOpen ? 'active' : ''}`} onClick={onClose}>
             <div className="modal-content import-modal" onClick={(e) => e.stopPropagation()}>
@@ -635,9 +539,8 @@ function ImportModal({ isOpen, onClose, onSave }) {
                         <h2>Neues Projekt importieren</h2>
                         <p>Fügen Sie alle Projektdetails hinzu</p>
                     </div>
-                    
+
                     <div className="form-grid">
-                        {/* Image Upload */}
                         <div className="form-group full-width">
                             <label>Projektbild</label>
                             <div
@@ -650,7 +553,7 @@ function ImportModal({ isOpen, onClose, onSave }) {
                                     <>
                                         <div className="upload-icon">📷</div>
                                         <p className="upload-text">
-                                            Klicken zum <span>Hochladen</span> oder Drag & Drop
+                                            Klicken zum <span>Hochladen</span>
                                         </p>
                                     </>
                                 )}
@@ -663,8 +566,7 @@ function ImportModal({ isOpen, onClose, onSave }) {
                                 onChange={handleImageUpload}
                             />
                         </div>
-                        
-                        {/* Title */}
+
                         <div className="form-group full-width">
                             <label>Projekttitel</label>
                             <input
@@ -674,10 +576,9 @@ function ImportModal({ isOpen, onClose, onSave }) {
                                 placeholder="z.B. Bionik-Prothese"
                             />
                         </div>
-                        
-                        {/* Badge */}
+
                         <div className="form-group">
-                            <label>Badge (Hervorhebung)</label>
+                            <label>Badge</label>
                             <input
                                 type="text"
                                 value={formData.badge}
@@ -685,8 +586,7 @@ function ImportModal({ isOpen, onClose, onSave }) {
                                 placeholder="z.B. Medizintechnik, Innovation"
                             />
                         </div>
-                        
-                        {/* Category */}
+
                         <div className="form-group">
                             <label>Kategorie</label>
                             <select
@@ -698,8 +598,7 @@ function ImportModal({ isOpen, onClose, onSave }) {
                                 ))}
                             </select>
                         </div>
-                        
-                        {/* Complexity */}
+
                         <div className="form-group">
                             <label>Komplexität (1-5)</label>
                             <div className="complexity-selector">
@@ -715,8 +614,7 @@ function ImportModal({ isOpen, onClose, onSave }) {
                                 ))}
                             </div>
                         </div>
-                        
-                        {/* Year */}
+
                         <div className="form-group">
                             <label>Jahr</label>
                             <input
@@ -726,8 +624,7 @@ function ImportModal({ isOpen, onClose, onSave }) {
                                 placeholder="2025"
                             />
                         </div>
-                        
-                        {/* Duration */}
+
                         <div className="form-group">
                             <label>Dauer</label>
                             <input
@@ -737,8 +634,7 @@ function ImportModal({ isOpen, onClose, onSave }) {
                                 placeholder="z.B. 6 Monate"
                             />
                         </div>
-                        
-                        {/* Material */}
+
                         <div className="form-group">
                             <label>Material</label>
                             <input
@@ -748,8 +644,7 @@ function ImportModal({ isOpen, onClose, onSave }) {
                                 placeholder="z.B. TPU + PLA"
                             />
                         </div>
-                        
-                        {/* Description */}
+
                         <div className="form-group full-width">
                             <label>Beschreibung</label>
                             <textarea
@@ -758,28 +653,25 @@ function ImportModal({ isOpen, onClose, onSave }) {
                                 placeholder="Kurze Projektbeschreibung..."
                             />
                         </div>
-                        
-                        {/* Tags */}
+
                         <div className="form-group full-width">
                             <label>Tags (Enter zum Hinzufügen)</label>
                             <TagsInput
                                 tags={formData.tags}
                                 setTags={(tags) => handleChange('tags', tags)}
-                                placeholder="z.B. Medizin, Bionik, Custom..."
+                                placeholder="z.B. Medizin, Bionik..."
                             />
                         </div>
-                        
-                        {/* Technologies */}
+
                         <div className="form-group full-width">
                             <label>Technologien (Enter zum Hinzufügen)</label>
                             <TagsInput
                                 tags={formData.technologies}
                                 setTags={(tech) => handleChange('technologies', tech)}
-                                placeholder="z.B. FDM Multi-Material, Topology Optimization..."
+                                placeholder="z.B. FDM Multi-Material..."
                             />
                         </div>
-                        
-                        {/* Features */}
+
                         <div className="form-group full-width">
                             <label>Features & Highlights</label>
                             <FeaturesEditor
@@ -787,8 +679,7 @@ function ImportModal({ isOpen, onClose, onSave }) {
                                 setFeatures={(features) => handleChange('features', features)}
                             />
                         </div>
-                        
-                        {/* Challenges */}
+
                         <div className="form-group full-width">
                             <label>Herausforderungen</label>
                             <textarea
@@ -797,8 +688,7 @@ function ImportModal({ isOpen, onClose, onSave }) {
                                 placeholder="Welche Herausforderungen gab es?"
                             />
                         </div>
-                        
-                        {/* Outcome */}
+
                         <div className="form-group full-width">
                             <label>Ergebnis</label>
                             <textarea
@@ -807,8 +697,7 @@ function ImportModal({ isOpen, onClose, onSave }) {
                                 placeholder="Was wurde erreicht?"
                             />
                         </div>
-                        
-                        {/* File Attachments */}
+
                         <div className="form-group full-width">
                             <label>Dateien anhängen</label>
                             <div className="file-attachments">
@@ -844,7 +733,7 @@ function ImportModal({ isOpen, onClose, onSave }) {
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className="form-actions">
                         <button type="button" className="btn btn-secondary" onClick={onClose}>
                             Abbrechen
@@ -859,28 +748,45 @@ function ImportModal({ isOpen, onClose, onSave }) {
     );
 }
 
-// Project Detail Modal Component
-function ProjectModal({ project, onClose }) {
+// ============================================
+// Project Detail Modal Component + ADMIN BUTTONS
+// ============================================
+
+function ProjectModal({ project, onClose, isAuthenticated, onDelete, onToggleVisibility }) {
     if (!project) return null;
-    
+
     return (
         <div className={`modal-overlay ${project ? 'active' : ''}`} onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-close" onClick={onClose}>×</div>
-                <div className="modal-image" style={{backgroundImage: `url(${project.image})`}}>
+                <div className="modal-image" style={{ backgroundImage: `url(${project.image})` }}>
                     <img src={project.image} alt={project.title} />
                 </div>
                 <div className="modal-body">
                     <div className="modal-header">
                         <h2 className="modal-title">{project.title}</h2>
                         <p className="modal-description">{project.description}</p>
-                        <div className="project-tags">
+
+                        {isAuthenticated && (
+                            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem", flexWrap: "wrap" }}>
+                                <button className="btn btn-secondary" type="button" onClick={() => onDelete(project)}>
+                                    🗑 Löschen
+                                </button>
+                                <button className="btn btn-primary" type="button" onClick={() => onToggleVisibility(project)}>
+                                    {((project.visibility || "public") === "restricted")
+                                        ? "🔓 Öffentlich machen"
+                                        : "🔒 Sperrvermerk (nur Lehrkräfte)"}
+                                </button>
+                            </div>
+                        )}
+
+                        <div className="project-tags" style={{ marginTop: "1rem" }}>
                             {project.tags.map((tag, i) => (
                                 <span key={i} className="project-tag">{tag}</span>
                             ))}
                         </div>
                     </div>
-                    
+
                     <div className="modal-details">
                         <div className="detail-item">
                             <div className="detail-label">Jahr</div>
@@ -931,7 +837,7 @@ function ProjectModal({ project, onClose }) {
                             {project.outcome}
                         </p>
                     </div>
-                    
+
                     {project.attachments && project.attachments.length > 0 && (
                         <div className="modal-section">
                             <h3>Anhänge</h3>
@@ -945,9 +851,9 @@ function ProjectModal({ project, onClose }) {
                                                 <div className="attachment-size">{file.size}</div>
                                             </div>
                                         </div>
-                                        <a href="#" className="download-btn">
+                                        <a href="#" className="download-btn" onClick={(e) => e.preventDefault()}>
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
                                             </svg>
                                         </a>
                                     </div>
@@ -961,10 +867,13 @@ function ProjectModal({ project, onClose }) {
     );
 }
 
+// ============================================
 // Navigation Component
+// ============================================
+
 function Navigation({ isAuthenticated, userEmail, onLogout, onImportClick }) {
     const [scrolled, setScrolled] = useState(false);
-    
+
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 50);
@@ -972,44 +881,36 @@ function Navigation({ isAuthenticated, userEmail, onLogout, onImportClick }) {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
-    
+
     const getInitials = (email) => {
         return email.split('@')[0].substring(0, 2).toUpperCase();
     };
-    
+
     return (
         <nav id="navbar" className={scrolled ? 'scrolled' : ''}>
             <div className="nav-content">
                 <div className="logo">🖨️ IEM</div>
                 <ul className="nav-links">
-                    <li><a href="#" className="nav-link">Home</a></li>
-                    <li><a href="#" className="nav-link active">Projekte</a></li>
-                    <li><a href="#" className="nav-link">Info</a></li>
-                    {isAuthenticated ? (
-                        <>
-                            <li>
-                                <span className="nav-link" onClick={onImportClick} style={{ cursor: 'pointer' }}>
-                                    Import
-                                </span>
-                            </li>
-                            <li>
-                                <div className="user-badge">
-                                    <div className="avatar">{getInitials(userEmail)}</div>
-                                    <div className="user-info">
-                                        <div className="user-name">{userEmail.split('@')[0]}</div>
-                                        <div className="user-role">Lehrer</div>
-                                    </div>
-                                    <button className="logout-btn" onClick={onLogout} title="Abmelden">
-                                        🚪
-                                    </button>
-                                </div>
-                            </li>
-                        </>
-                    ) : (
+                    <li><a href="/" className="nav-link">Home</a></li>
+                    <li><a href="/3d_druck_projekte" className="nav-link active">Projekte</a></li>
+                    <li><a href="/3d_druck_info" className="nav-link">Info</a></li>
+                    <li>
+                        <span className="nav-link" onClick={onImportClick} style={{ cursor: 'pointer' }}>
+                            Import
+                        </span>
+                    </li>
+                    {isAuthenticated && (
                         <li>
-                            <span className="nav-link" onClick={onImportClick} style={{ cursor: 'pointer' }}>
-                                Import
-                            </span>
+                            <div className="user-badge">
+                                <div className="avatar">{getInitials(userEmail)}</div>
+                                <div className="user-info">
+                                    <div className="user-name">{userEmail.split('@')[0]}</div>
+                                    <div className="user-role">Lehrer</div>
+                                </div>
+                                <button className="logout-btn" onClick={onLogout} title="Abmelden">
+                                    🚪
+                                </button>
+                            </div>
                         </li>
                     )}
                 </ul>
@@ -1018,9 +919,12 @@ function Navigation({ isAuthenticated, userEmail, onLogout, onImportClick }) {
     );
 }
 
-// Main App Component
+// ============================================
+// Main App Component (MongoDB + module=3d_druck)
+// ============================================
+
 function App() {
-    const [projects, setProjects] = useState(initialProjectsData);
+    const [projects, setProjects] = useState([]);
     const [activeFilter, setActiveFilter] = useState('Alle');
     const [selectedProject, setSelectedProject] = useState(null);
     const [showImportModal, setShowImportModal] = useState(false);
@@ -1030,16 +934,41 @@ function App() {
     const [collapsedYears, setCollapsedYears] = useState({});
 
     const categories = ['Alle', 'FDM', 'SLA'];
-    
-    // Get unique years from projects
+
+    const reloadProjects = async (emailOrEmpty) => {
+        try {
+            const res = await fetch("/api/projects?module=3d_druck", {
+                headers: emailOrEmpty ? { "X-User-Email": emailOrEmpty } : {}
+            });
+            const data = await res.json();
+            setProjects(data);
+        } catch (e) {
+            console.error("Konnte Projekte nicht laden:", e);
+            setProjects(initialProjectsData); // fallback optional
+        }
+    };
+
+    useEffect(() => {
+        const session = loadSession();
+        const email = session?.email || "";
+
+        if (session) {
+            setIsAuthenticated(true);
+            setUserEmail(session.email);
+        }
+
+        reloadProjects(email);
+    }, []);
+
+    // Years
     const years = [...new Set(projects.map(p => p.year))].sort((a, b) => b - a);
-    
-    // Filter projects
-    const filteredProjects = activeFilter === 'Alle' 
-        ? projects 
+
+    // Filter
+    const filteredProjects = activeFilter === 'Alle'
+        ? projects
         : projects.filter(p => p.category === activeFilter);
 
-    // Group projects by year
+    // Group by year
     const projectsByYear = years.reduce((acc, year) => {
         acc[year] = filteredProjects.filter(p => p.year === year);
         return acc;
@@ -1060,25 +989,118 @@ function App() {
         }
     };
 
-    const handleLoginSuccess = (email) => {
+    const handleLoginSuccess = async (email) => {
         setIsAuthenticated(true);
         setUserEmail(email);
         setShowLoginModal(false);
         setShowImportModal(true);
+        await reloadProjects(email);
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        clearSession();
         setIsAuthenticated(false);
         setUserEmail('');
+        setSelectedProject(null);
+        await reloadProjects("");
     };
 
-    const addProject = (newProject) => {
-        setProjects(prev => [newProject, ...prev]);
+    const addProject = async (newProject) => {
+        try {
+            if (!userEmail) {
+                alert("Nicht angemeldet.");
+                return;
+            }
+
+            const payload = { ...newProject, module: "3d_druck" };
+
+            const res = await fetch("/api/projects", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-User-Email": userEmail
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const saved = await res.json();
+
+            if (!res.ok) {
+                console.error(saved);
+                alert(saved?.error || "Speichern fehlgeschlagen");
+                return;
+            }
+
+            setProjects(prev => [saved, ...prev]);
+        } catch (e) {
+            console.error("Speichern fehlgeschlagen:", e);
+            alert("Speichern fehlgeschlagen (siehe Konsole).");
+        }
+    };
+
+    const deleteProject = async (project) => {
+        try {
+            if (!userEmail) return alert("Nicht angemeldet.");
+
+            const ok = confirm(`Projekt wirklich löschen?\n\n"${project.title}"`);
+            if (!ok) return;
+
+            const res = await fetch(`/api/projects/${project.id}`, {
+                method: "DELETE",
+                headers: { "X-User-Email": userEmail }
+            });
+
+            const out = await res.json();
+
+            if (!res.ok) {
+                console.error(out);
+                alert(out?.error || "Löschen fehlgeschlagen");
+                return;
+            }
+
+            setProjects(prev => prev.filter(p => p.id !== project.id));
+            setSelectedProject(null);
+        } catch (e) {
+            console.error("Löschen fehlgeschlagen:", e);
+            alert("Löschen fehlgeschlagen (siehe Konsole).");
+        }
+    };
+
+    const toggleVisibility = async (project) => {
+        try {
+            if (!userEmail) return alert("Nicht angemeldet.");
+
+            const current = project.visibility || "public";
+            const next = current === "restricted" ? "public" : "restricted";
+
+            const res = await fetch(`/api/projects/${project.id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-User-Email": userEmail
+                },
+                body: JSON.stringify({ visibility: next })
+            });
+
+            const updated = await res.json();
+
+            if (!res.ok) {
+                console.error(updated);
+                alert(updated?.error || "Update fehlgeschlagen");
+                return;
+            }
+
+            setProjects(prev => prev.map(p => (p.id === updated.id ? updated : p)));
+            setSelectedProject(updated);
+        } catch (e) {
+            console.error("Toggle fehlgeschlagen:", e);
+            alert("Toggle fehlgeschlagen (siehe Konsole).");
+        }
     };
 
     // Stats
     const totalProjects = projects.length;
-    const totalMaterials = [...new Set(projects.map(p => p.material))].length;
+    const totalMaterials = [...new Set(projects.map(p => p.material).filter(Boolean))].length;
 
     return (
         <React.Fragment>
@@ -1088,7 +1110,7 @@ function App() {
                 onLogout={handleLogout}
                 onImportClick={handleImportClick}
             />
-            
+
             <section className="hero">
                 <div id="canvas-container">
                     <ThreeScene />
@@ -1135,10 +1157,10 @@ function App() {
                 <div className="container">
                     {years.map(year => {
                         const yearProjects = projectsByYear[year];
-                        if (yearProjects.length === 0) return null;
-                        
+                        if (!yearProjects || yearProjects.length === 0) return null;
+
                         const isCollapsed = collapsedYears[year];
-                        
+
                         return (
                             <div key={year} className="year-group">
                                 <div
@@ -1156,15 +1178,17 @@ function App() {
                                     style={{ maxHeight: isCollapsed ? '0' : `${yearProjects.length * 600}px` }}
                                 >
                                     <div className="projects-grid">
-                                        {yearProjects.map((project, index) => (
+                                        {yearProjects.map((project) => (
                                             <div
                                                 key={project.id}
                                                 className="project-card"
                                                 onClick={() => setSelectedProject(project)}
                                             >
-                                                <div className="project-image" style={{backgroundImage: `url(${project.image})`}}>
+                                                <div className="project-image" style={{ backgroundImage: `url(${project.image})` }}>
                                                     <img src={project.image} alt={project.title} />
-                                                    <div className="project-badge">{project.badge}</div>
+                                                    <div className="project-badge">
+                                                        {project.visibility === "restricted" ? "🔒 Gesperrt" : project.badge}
+                                                    </div>
                                                     <div className="complexity-indicator">
                                                         {[...Array(5)].map((_, i) => (
                                                             <div
@@ -1192,7 +1216,7 @@ function App() {
                                                         </div>
                                                     </div>
                                                     <div className="project-tags">
-                                                        {project.tags.map((tag, i) => (
+                                                        {(project.tags || []).map((tag, i) => (
                                                             <span key={i} className="project-tag">{tag}</span>
                                                         ))}
                                                     </div>
@@ -1204,7 +1228,7 @@ function App() {
                             </div>
                         );
                     })}
-                    
+
                     {filteredProjects.length === 0 && (
                         <div className="no-projects">
                             <h3>Keine Projekte gefunden</h3>
@@ -1214,17 +1238,20 @@ function App() {
                 </div>
             </section>
 
-            {/* Project Detail Modal */}
-            <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
+            <ProjectModal
+                project={selectedProject}
+                onClose={() => setSelectedProject(null)}
+                isAuthenticated={isAuthenticated}
+                onDelete={deleteProject}
+                onToggleVisibility={toggleVisibility}
+            />
 
-            {/* Login Modal */}
             <LoginModal
                 isOpen={showLoginModal}
                 onClose={() => setShowLoginModal(false)}
                 onSuccess={handleLoginSuccess}
             />
 
-            {/* Import Modal */}
             <ImportModal
                 isOpen={showImportModal}
                 onClose={() => setShowImportModal(false)}
