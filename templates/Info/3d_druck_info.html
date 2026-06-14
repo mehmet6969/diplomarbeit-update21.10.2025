@@ -25,12 +25,11 @@
             <div class="logo">
                 🖨️ IEM
             </div>
-            <ul class="nav-links">
-                <li><a href="#" class="nav-link">Home</a></li>
-                <li><a href="#" class="nav-link">Projekte</a></li>
-                <li><a href="#" class="nav-link active">Info</a></li>
-                <li><a href="#" class="nav-link">Weiteres</a></li>
-            </ul>
+       <ul class="nav-links">
+    <li><a href="{{ url_for('home') }}" class="nav-link">Home</a></li>
+    <li><a href="{{ url_for('Drei_D_Druck_Projekte') }}" class="nav-link">Projekte</a></li>
+    <li><a href="{{ url_for('Drei_D_Druck_info') }}" class="nav-link active">Info</a></li>
+</ul>
         </div>
     </nav>
 

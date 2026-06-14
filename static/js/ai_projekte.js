@@ -11,13 +11,14 @@ const EMAILJS_CONFIG = {
     publicKey: 'IIsxauIOXV1SLgD-O'
 };
 
+// Manuelle Whitelist für Ausnahmen (z.B. Gmail, Direktor ohne Punkt)
 const AUTHORIZED_EMAILS = [
-        'mehmet.saygin@student.htldornbirn.at',
-        'msaygin29@gmail.com',
-        'direktor@htldornbirn.at',
-        'dominik.ferles@student.htldornbirn.at',
-        'kenan.bayar@htldornbirn.at'
-    ];
+    'mehmet.saygin@student.htldornbirn.at',
+    'msaygin29@gmail.com',
+    'direktor@htldornbirn.at',
+    'dominik.ferles@student.htldornbirn.at',
+    'kenan.bayar@htldornbirn.at'
+];
 
 // ============================================
 // AUTH SYSTEM
@@ -28,9 +29,26 @@ if (window.emailjs) {
 }
 
 function isEmailAuthorized(email) {
-    return AUTHORIZED_EMAILS.some(
-        authorizedEmail => authorizedEmail.toLowerCase() === email.toLowerCase()
-    );
+    const trimmed = email.toLowerCase().trim();
+    
+    // 1. Prüfe ob in der manuellen Whitelist
+    if (AUTHORIZED_EMAILS.some(e => e.toLowerCase() === trimmed)) {
+        return true;
+    }
+    
+    // 2. Prüfe Muster: vorname.nachname@htldornbirn.at (Lehrer)
+    const htlPattern = /^[a-zäöüß]+\.[a-zäöüß]+@htldornbirn\.at$/i;
+    if (htlPattern.test(trimmed)) {
+        return true;
+    }
+    
+    // 3. Prüfe auch student E-Mails: vorname.nachname@student.htldornbirn.at
+    const studentPattern = /^[a-zäöüß]+\.[a-zäöüß]+@student\.htldornbirn\.at$/i;
+    if (studentPattern.test(trimmed)) {
+        return true;
+    }
+    
+    return false;
 }
 
 function generateVerificationCode() {
@@ -264,149 +282,10 @@ function ThreeScene() {
 }
 
 // ============================================
-// INITIAL PROJECT DATA
+// INITIAL PROJECT DATA (Fallback)
 // ============================================
 
-const initialProjectsData = [
-    {
-        id: 1,
-        title: "Neural Network Analyzer",
-        image: "../../static/images/ai_1.jpg",
-        description: "Deep Learning System zur automatischen Bildanalyse und Mustererkennung in medizinischen Daten.",
-        category: "Computer Vision",
-        badge: "Research",
-        complexity: 5,
-        year: "2024",
-        duration: "8 Monate",
-        team: "4 Personen",
-        technologies: ["PyTorch", "TensorFlow", "OpenCV", "Python", "CUDA"],
-        tags: ["Deep Learning", "Medical AI", "CNN"],
-        features: [
-            "Automatische Tumorerkennung mit 98% Genauigkeit",
-            "Echtzeit-Bildverarbeitung",
-            "Transfer Learning von vortrainierten Modellen",
-            "Explainable AI Dashboard"
-        ],
-        challenges: "Training mit limitierten medizinischen Datensätzen unter Einhaltung von Datenschutzrichtlinien",
-        outcome: "Prototyp wird in Zusammenarbeit mit lokalem Krankenhaus getestet",
-        attachments: []
-    },
-    {
-        id: 2,
-        title: "NLP Chatbot System",
-        image: "../../static/images/ai_2.jpg",
-        description: "Intelligenter Chatbot mit Natural Language Processing für Kundenservice-Automatisierung.",
-        category: "NLP",
-        badge: "Production",
-        complexity: 4,
-        year: "2024",
-        duration: "6 Monate",
-        team: "3 Personen",
-        technologies: ["GPT-4 API", "LangChain", "Python", "FastAPI", "Redis"],
-        tags: ["NLP", "Chatbot", "LLM"],
-        features: [
-            "Kontextbewusstes Dialogsystem",
-            "Multi-Language Support (DE, EN, FR)",
-            "Integration mit CRM-Systemen",
-            "Sentiment-Analyse in Echtzeit"
-        ],
-        challenges: "Balance zwischen Antwortqualität und Latenz bei hohem Anfragevolumen",
-        outcome: "70% Reduktion der Kundenservice-Anfragen",
-        attachments: []
-    },
-    {
-        id: 3,
-        title: "Predictive Maintenance AI",
-        image: "../../static/images/ai_3.jpg",
-        description: "Machine Learning System zur Vorhersage von Maschinenausfällen in der Produktion.",
-        category: "Predictive Analytics",
-        badge: "Industry 4.0",
-        complexity: 5,
-        year: "2024",
-        duration: "10 Monate",
-        team: "5 Personen",
-        technologies: ["scikit-learn", "XGBoost", "InfluxDB", "Grafana", "Python"],
-        tags: ["IoT", "Predictive", "Industry"],
-        features: [
-            "Anomalie-Erkennung in Sensordaten",
-            "Ausfallvorhersage 48h im Voraus",
-            "Automatische Wartungsplanung",
-            "ROI-Dashboard für Management"
-        ],
-        challenges: "Integration heterogener Sensordaten aus verschiedenen Maschinentypen",
-        outcome: "35% Reduktion ungeplanter Ausfallzeiten",
-        attachments: []
-    },
-    {
-        id: 4,
-        title: "Generative Design Tool",
-        image: "../../static/images/ai_1.jpg",
-        description: "KI-gestütztes Tool zur automatischen Generierung von Produktdesigns basierend auf Constraints.",
-        category: "Generative AI",
-        badge: "Innovation",
-        complexity: 5,
-        year: "2025",
-        duration: "12 Monate",
-        team: "6 Personen",
-        technologies: ["Stable Diffusion", "ControlNet", "PyTorch", "React", "Three.js"],
-        tags: ["Generative", "Design", "3D"],
-        features: [
-            "Text-to-3D Modell Generation",
-            "Parametrische Design-Constraints",
-            "Automatische Optimierung für Fertigung",
-            "Real-time Preview und Iteration"
-        ],
-        challenges: "Sicherstellung der Fertigbarkeit generierter Designs",
-        outcome: "Design-Iterationszeit um 80% reduziert",
-        attachments: []
-    },
-    {
-        id: 5,
-        title: "Autonomous Robot Navigation",
-        image: "../../static/images/ai_2.jpg",
-        description: "Reinforcement Learning System für autonome Roboternavigation in dynamischen Umgebungen.",
-        category: "Robotics AI",
-        badge: "Cutting Edge",
-        complexity: 5,
-        year: "2024",
-        duration: "9 Monate",
-        team: "4 Personen",
-        technologies: ["ROS2", "PyTorch", "Gazebo", "SLAM", "Python"],
-        tags: ["Robotics", "RL", "Navigation"],
-        features: [
-            "SLAM-basierte Kartierung",
-            "Dynamische Hindernisvermeidung",
-            "Multi-Robot Koordination",
-            "Sim-to-Real Transfer"
-        ],
-        challenges: "Überbrückung der Simulation-Reality Gap",
-        outcome: "Erfolgreicher Einsatz in Lagerumgebung",
-        attachments: []
-    },
-    {
-        id: 6,
-        title: "Quantum ML Experiment",
-        image: "../../static/images/ai_3.jpg",
-        description: "Experimentelle Implementierung von Quantum Machine Learning Algorithmen.",
-        category: "Quantum AI",
-        badge: "Experimental",
-        complexity: 5,
-        year: "2025",
-        duration: "6 Monate",
-        team: "3 Personen",
-        technologies: ["Qiskit", "PennyLane", "Python", "IBM Quantum"],
-        tags: ["Quantum", "Research", "ML"],
-        features: [
-            "Variational Quantum Eigensolver",
-            "Quantum Neural Networks",
-            "Hybrid Classical-Quantum Pipelines",
-            "Benchmark gegen klassische Algorithmen"
-        ],
-        challenges: "Limitierte Qubit-Anzahl und Noise in aktueller Hardware",
-        outcome: "Proof-of-Concept für Quantum Advantage in spezifischen Problemklassen",
-        attachments: []
-    }
-];
+const initialProjectsData = [];
 
 // ============================================
 // LOGIN MODAL
@@ -454,7 +333,7 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
         }
 
         if (!isEmailAuthorized(trimmedEmail)) {
-            setError('Diese E-Mail-Adresse ist nicht für den Import berechtigt.');
+            setError('Diese E-Mail-Adresse ist nicht berechtigt. Verwenden Sie eine HTL Dornbirn E-Mail (vorname.nachname@htldornbirn.at).');
             return;
         }
 
@@ -548,9 +427,9 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                 <div className="modal-body">
                     <div className="login-header">
                         <div className="lock-icon">🔐</div>
-                        <h2>{step === 'email' ? 'Lehrer-Anmeldung' : 'Code eingeben'}</h2>
+                        <h2>{step === 'email' ? 'Anmeldung' : 'Code eingeben'}</h2>
                         <p>{step === 'email'
-                            ? 'Melden Sie sich mit Ihrer autorisierten E-Mail an.'
+                            ? 'Melden Sie sich mit Ihrer HTL Dornbirn E-Mail an.'
                             : 'Geben Sie den 6-stelligen Code ein.'}</p>
                     </div>
 
@@ -615,7 +494,7 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                     )}
 
                     <div className="login-footer">
-                        <p>Nur autorisierte Lehrkräfte können Projekte importieren.</p>
+                        <p>Alle HTL Dornbirn Mitarbeiter können sich anmelden.</p>
                     </div>
                 </div>
             </div>
@@ -922,6 +801,19 @@ function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userEmail, setUserEmail] = useState('');
 
+    const reloadProjects = async (emailOrEmpty) => {
+        try {
+            const res = await fetch("/api/projects?module=ai", {
+                headers: emailOrEmpty ? { "X-User-Email": emailOrEmpty } : {}
+            });
+            const data = await res.json();
+            setProjects(data);
+        } catch (e) {
+            console.error("Konnte Projekte nicht laden:", e);
+            setProjects(initialProjectsData);
+        }
+    };
+
     useEffect(() => {
         const session = loadSession();
         const email = session?.email || "";
@@ -931,30 +823,34 @@ function App() {
             setUserEmail(session.email);
         }
 
-        (async () => {
-            try {
-                const res = await fetch("/api/projects?module=ai", {
-                    headers: email ? { "X-User-Email": email } : {}
-                });
-                const data = await res.json();
-                setProjects(data);
-            } catch (e) {
-                console.error("Konnte Projekte nicht laden:", e);
-                setProjects(initialProjectsData);
-            }
-        })();
+        reloadProjects(email);
     }, []);
 
     const categories = ['Alle', 'Quantum AI', 'Computer Vision', 'NLP', 'Robotics AI', 'Generative AI', 'Medical AI', 'Predictive Analytics'];
-    const filteredProjects = activeFilter === 'Alle' ? projects : projects.filter(p => p.category === activeFilter);
+
+    // ========== SPERRVERMERK FILTER ==========
+    // Wenn NICHT angemeldet: Nur öffentliche Projekte zeigen
+    // Wenn angemeldet: Alle Projekte zeigen
+    const visibleProjectsForUser = isAuthenticated 
+        ? projects 
+        : projects.filter(p => p.visibility !== 'restricted');
+
+    const filteredProjects = activeFilter === 'Alle' 
+        ? visibleProjectsForUser 
+        : visibleProjectsForUser.filter(p => p.category === activeFilter);
 
     const addProject = async (newProject) => {
         try {
+            if (!userEmail) {
+                alert("Nicht angemeldet.");
+                return;
+            }
+
             const res = await fetch("/api/projects", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    ...(userEmail ? { "X-User-Email": userEmail } : {})
+                    "X-User-Email": userEmail
                 },
                 body: JSON.stringify({ ...newProject, module: "ai" }),
             });
@@ -1048,43 +944,27 @@ function App() {
         }
     };
 
-    const handleLoginSuccess = (email) => {
+    const handleLoginSuccess = async (email) => {
         setIsAuthenticated(true);
         setUserEmail(email);
+        setShowLoginModal(false);
         setShowImportModal(true);
-
-        (async () => {
-            try {
-                const res = await fetch("/api/projects?module=ai", {
-                    headers: { "X-User-Email": email }
-                });
-                const data = await res.json();
-                setProjects(data);
-            } catch (e) {
-                console.error("Reload nach Login fehlgeschlagen:", e);
-            }
-        })();
+        await reloadProjects(email);
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         clearSession();
         setIsAuthenticated(false);
         setUserEmail('');
         setSelectedProject(null);
-
-        (async () => {
-            try {
-                const res = await fetch("/api/projects?module=ai");
-                const data = await res.json();
-                setProjects(data);
-            } catch (e) {
-                console.error("Reload nach Logout fehlgeschlagen:", e);
-            }
-        })();
+        await reloadProjects("");
     };
 
     const userName = userEmail ? getNameFromEmail(userEmail) : '';
     const userInitials = userName ? userName.split(' ').map(n => n[0]).join('').toUpperCase() : '';
+
+    // Stats - zeige korrekte Anzahl basierend auf Auth-Status
+    const publicProjectCount = projects.filter(p => p.visibility !== 'restricted').length;
 
     return (
         <React.Fragment>
@@ -1104,7 +984,7 @@ function App() {
                                     <div className="avatar">{userInitials}</div>
                                     <div className="user-info">
                                         <span className="user-name">{userName}</span>
-                                        <span className="user-role">Lehrkraft</span>
+                                        <span className="user-role">Angemeldet</span>
                                     </div>
                                     <button className="logout-btn" onClick={handleLogout} title="Abmelden">⏻</button>
                                 </div>
@@ -1125,7 +1005,7 @@ function App() {
                     </p>
                     <div className="stats-bar">
                         <div className="stat-item">
-                            <div className="stat-number">{projects.length}</div>
+                            <div className="stat-number">{isAuthenticated ? projects.length : publicProjectCount}</div>
                             <div className="stat-label">Projekte</div>
                         </div>
                         <div className="stat-item">
@@ -1190,6 +1070,13 @@ function App() {
                             </div>
                         ))}
                     </div>
+
+                    {filteredProjects.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
+                            <h3>Keine Projekte gefunden</h3>
+                            <p>Fügen Sie neue Projekte hinzu oder wählen Sie einen anderen Filter.</p>
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -1225,7 +1112,7 @@ function App() {
                                         >
                                             {((selectedProject.visibility || "public") === "restricted")
                                                 ? "🔓 Öffentlich machen"
-                                                : "🔒 Sperrvermerk (nur Lehrkräfte)"}
+                                                : "🔒 Sperrvermerk"}
                                         </button>
                                     </div>
                                 )}

@@ -6,17 +6,19 @@ const { useState, useEffect, useRef } = React;
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_v351y86',
+    backupServiceId: 'service_s4pcyvf',
     templateId: 'template_nce99x6',
     publicKey: 'IIsxauIOXV1SLgD-O'
 };
 
+// Manuelle Whitelist für Ausnahmen (z.B. Gmail, Direktor ohne Punkt)
 const AUTHORIZED_EMAILS = [
-        'mehmet.saygin@student.htldornbirn.at',
-        'msaygin29@gmail.com',
-        'direktor@htldornbirn.at',
-        'dominik.ferles@student.htldornbirn.at',
-        'kenan.bayar@htldornbirn.at'
-    ];
+    'mehmet.saygin@student.htldornbirn.at',
+    'msaygin29@gmail.com',
+    'direktor@htldornbirn.at',
+    'dominik.ferles@student.htldornbirn.at',
+    'kenan.bayar@htldornbirn.at'
+];
 
 // EmailJS initialisieren
 if (typeof emailjs !== 'undefined') {
@@ -28,9 +30,26 @@ if (typeof emailjs !== 'undefined') {
 // ============================================
 
 function isEmailAuthorized(email) {
-    return AUTHORIZED_EMAILS.some(
-        authorizedEmail => authorizedEmail.toLowerCase() === email.toLowerCase()
-    );
+    const trimmed = email.toLowerCase().trim();
+    
+    // 1. Prüfe ob in der manuellen Whitelist
+    if (AUTHORIZED_EMAILS.some(e => e.toLowerCase() === trimmed)) {
+        return true;
+    }
+    
+    // 2. Prüfe Muster: vorname.nachname@htldornbirn.at (Lehrer)
+    const htlPattern = /^[a-zäöüß]+\.[a-zäöüß]+@htldornbirn\.at$/i;
+    if (htlPattern.test(trimmed)) {
+        return true;
+    }
+    
+    // 3. Prüfe auch student E-Mails: vorname.nachname@student.htldornbirn.at
+    const studentPattern = /^[a-zäöüß]+\.[a-zäöüß]+@student\.htldornbirn\.at$/i;
+    if (studentPattern.test(trimmed)) {
+        return true;
+    }
+    
+    return false;
 }
 
 function generateVerificationCode() {
@@ -111,9 +130,21 @@ async function sendVerificationEmail(email, code) {
             templateParams
         );
         return { success: true };
-    } catch (error) {
-        console.error('EmailJS Error:', error);
-        return { success: false, error: error.message || 'Unbekannter Fehler' };
+    } catch (primaryError) {
+        console.warn('Primärer Service fehlgeschlagen:', primaryError);
+        if (EMAILJS_CONFIG.backupServiceId) {
+            try {
+                await emailjs.send(
+                    EMAILJS_CONFIG.backupServiceId,
+                    EMAILJS_CONFIG.templateId,
+                    templateParams
+                );
+                return { success: true };
+            } catch (backupError) {
+                return { success: false, error: backupError.message };
+            }
+        }
+        return { success: false, error: primaryError.message || 'Unbekannter Fehler' };
     }
 }
 
@@ -285,7 +316,7 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
         }
 
         if (!isEmailAuthorized(trimmedEmail)) {
-            setError('Diese E-Mail-Adresse ist nicht berechtigt.');
+            setError('Diese E-Mail-Adresse ist nicht berechtigt. Verwenden Sie eine HTL Dornbirn E-Mail (vorname.nachname@htldornbirn.at).');
             return;
         }
 
@@ -377,8 +408,8 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
                         <>
                             <div className="login-header">
                                 <div className="lock-icon">🔒</div>
-                                <h2>Lehrer-Authentifizierung</h2>
-                                <p>Bitte geben Sie Ihre HTL-E-Mail-Adresse ein</p>
+                                <h2>Anmeldung</h2>
+                                <p>Melden Sie sich mit Ihrer HTL Dornbirn E-Mail an</p>
                             </div>
                             <div className="form-group full-width">
                                 <label>E-Mail-Adresse</label>
@@ -386,7 +417,7 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="lehrer@htldornbirn.at"
+                                    placeholder="vorname.nachname@htldornbirn.at"
                                 />
                             </div>
                             {error && <p className="error-message">{error}</p>}
@@ -397,6 +428,7 @@ function LoginModal({ isOpen, onClose, onSuccess }) {
                             >
                                 {loading ? 'Wird gesendet...' : 'Code senden'}
                             </button>
+                          
                         </>
                     ) : (
                         <>
@@ -775,13 +807,13 @@ function ProjectModal({ project, onClose, isAuthenticated, onDelete, onToggleVis
                                 <button className="btn btn-primary" type="button" onClick={() => onToggleVisibility(project)}>
                                     {((project.visibility || "public") === "restricted")
                                         ? "🔓 Öffentlich machen"
-                                        : "🔒 Sperrvermerk (nur Lehrkräfte)"}
+                                        : "🔒 Sperrvermerk"}
                                 </button>
                             </div>
                         )}
 
                         <div className="project-tags" style={{ marginTop: "1rem" }}>
-                            {project.tags.map((tag, i) => (
+                            {(project.tags || []).map((tag, i) => (
                                 <span key={i} className="project-tag">{tag}</span>
                             ))}
                         </div>
@@ -806,37 +838,45 @@ function ProjectModal({ project, onClose, isAuthenticated, onDelete, onToggleVis
                         </div>
                     </div>
 
-                    <div className="modal-section">
-                        <h3>Technologien</h3>
-                        <div className="tech-stack">
-                            {project.technologies.map((tech, i) => (
-                                <div key={i} className="tech-item">{tech}</div>
-                            ))}
+                    {project.technologies && project.technologies.length > 0 && (
+                        <div className="modal-section">
+                            <h3>Technologien</h3>
+                            <div className="tech-stack">
+                                {project.technologies.map((tech, i) => (
+                                    <div key={i} className="tech-item">{tech}</div>
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
-                    <div className="modal-section">
-                        <h3>Features & Highlights</h3>
-                        <ul>
-                            {project.features.filter(f => f).map((feature, i) => (
-                                <li key={i}>{feature}</li>
-                            ))}
-                        </ul>
-                    </div>
+                    {project.features && project.features.filter(f => f).length > 0 && (
+                        <div className="modal-section">
+                            <h3>Features & Highlights</h3>
+                            <ul>
+                                {project.features.filter(f => f).map((feature, i) => (
+                                    <li key={i}>{feature}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
 
-                    <div className="modal-section">
-                        <h3>Herausforderungen</h3>
-                        <p style={{ color: 'var(--text-muted)', lineHeight: '1.8', fontSize: '1.05rem', paddingLeft: '1.5rem' }}>
-                            {project.challenges}
-                        </p>
-                    </div>
+                    {project.challenges && (
+                        <div className="modal-section">
+                            <h3>Herausforderungen</h3>
+                            <p style={{ color: 'var(--text-muted)', lineHeight: '1.8', fontSize: '1.05rem', paddingLeft: '1.5rem' }}>
+                                {project.challenges}
+                            </p>
+                        </div>
+                    )}
 
-                    <div className="modal-section">
-                        <h3>Ergebnis</h3>
-                        <p style={{ color: 'var(--text-muted)', lineHeight: '1.8', fontSize: '1.05rem', paddingLeft: '1.5rem' }}>
-                            {project.outcome}
-                        </p>
-                    </div>
+                    {project.outcome && (
+                        <div className="modal-section">
+                            <h3>Ergebnis</h3>
+                            <p style={{ color: 'var(--text-muted)', lineHeight: '1.8', fontSize: '1.05rem', paddingLeft: '1.5rem' }}>
+                                {project.outcome}
+                            </p>
+                        </div>
+                    )}
 
                     {project.attachments && project.attachments.length > 0 && (
                         <div className="modal-section">
@@ -882,9 +922,8 @@ function Navigation({ isAuthenticated, userEmail, onLogout, onImportClick }) {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const getInitials = (email) => {
-        return email.split('@')[0].substring(0, 2).toUpperCase();
-    };
+    const userName = userEmail ? getNameFromEmail(userEmail) : '';
+    const userInitials = userName ? userName.split(' ').map(n => n[0]).join('').toUpperCase() : '';
 
     return (
         <nav id="navbar" className={scrolled ? 'scrolled' : ''}>
@@ -902,13 +941,13 @@ function Navigation({ isAuthenticated, userEmail, onLogout, onImportClick }) {
                     {isAuthenticated && (
                         <li>
                             <div className="user-badge">
-                                <div className="avatar">{getInitials(userEmail)}</div>
+                                <div className="avatar">{userInitials}</div>
                                 <div className="user-info">
-                                    <div className="user-name">{userEmail.split('@')[0]}</div>
-                                    <div className="user-role">Lehrer</div>
+                                    <div className="user-name">{userName}</div>
+                                    <div className="user-role">Angemeldet</div>
                                 </div>
                                 <button className="logout-btn" onClick={onLogout} title="Abmelden">
-                                    🚪
+                                    ⏻
                                 </button>
                             </div>
                         </li>
@@ -963,10 +1002,17 @@ function App() {
     // Years
     const years = [...new Set(projects.map(p => p.year))].sort((a, b) => b - a);
 
-    // Filter
+    // ========== SPERRVERMERK FILTER ==========
+    // Wenn NICHT angemeldet: Nur öffentliche Projekte zeigen
+    // Wenn angemeldet: Alle Projekte zeigen
+    const visibleProjectsForUser = isAuthenticated 
+        ? projects 
+        : projects.filter(p => p.visibility !== 'restricted');
+
+    // Filter by category
     const filteredProjects = activeFilter === 'Alle'
-        ? projects
-        : projects.filter(p => p.category === activeFilter);
+        ? visibleProjectsForUser
+        : visibleProjectsForUser.filter(p => p.category === activeFilter);
 
     // Group by year
     const projectsByYear = years.reduce((acc, year) => {
@@ -1098,9 +1144,10 @@ function App() {
         }
     };
 
-    // Stats
-    const totalProjects = projects.length;
-    const totalMaterials = [...new Set(projects.map(p => p.material).filter(Boolean))].length;
+    // Stats - zeige korrekte Anzahl basierend auf Auth-Status
+    const publicProjectCount = projects.filter(p => p.visibility !== 'restricted').length;
+    const totalProjects = isAuthenticated ? projects.length : publicProjectCount;
+    const totalMaterials = [...new Set(visibleProjectsForUser.map(p => p.material).filter(Boolean))].length;
 
     return (
         <React.Fragment>
@@ -1288,7 +1335,7 @@ function App() {
                         <h4>Kontakt</h4>
                         <ul>
                             <li>mehmet.saygin@student.htldornbirn.at</li>
-                            <li>+43 999 99999</li>
+                            <li>HTL Dornbirn</li>
                             <li>Höchsterstraße 73, 6850 Dornbirn</li>
                         </ul>
                     </div>

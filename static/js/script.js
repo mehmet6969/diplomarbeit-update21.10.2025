@@ -189,7 +189,7 @@ const moduleData = [
     additional: "Zusätzliche Informationen oder Details zu Über uns.",
     image: "static/images/bild5.jpg",
     moreInfoUrl: "ueber_uns_info",
-    projectsUrl: "wifi_projekte"
+    projectsUrl: "ueber_uns_info"
   },
   {
     title: "AI-Assistent",

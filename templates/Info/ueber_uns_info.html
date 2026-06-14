@@ -3,305 +3,419 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Über uns | IEM Team</title>
-    
+    <title>Über Uns | IEM</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../static/css/ueber_uns_info.css">
-    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ueber_uns_info.css') }}">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 </head>
 <body>
+
+    <div class="loader" id="loader">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <nav id="navbar">
+        <div class="nav-content">
+            <div class="logo">🎓 IEM</div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}" class="nav-link">Home</a></li>
+                <li><a href="{{ url_for('ueber_uns') }}" class="nav-link active">Über uns</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ==================== HERO ==================== -->
     <section class="hero">
         <div id="canvas-container"></div>
         <div class="hero-content">
             <h1>Über Uns</h1>
             <p class="hero-subtitle">
-                Ein Team, eine Vision – Gemeinsam gestalten wir die Zukunft der Ingenieurstechnik
+                Ein Team, eine Vision – gemeinsam gestalten wir die Zukunft der Ingenieurstechnik
             </p>
             <div class="cta-buttons">
                 <a href="#team" class="btn btn-primary">Team kennenlernen</a>
-                <a href="#journey" class="btn btn-secondary">Unsere Geschichte</a>
+                <a href="#synergy" class="btn btn-secondary">Wie wir arbeiten</a>
             </div>
         </div>
     </section>
 
+    <!-- ==================== TEAM ==================== -->
     <section id="team" class="team-section">
         <div class="container">
             <div class="section-header">
                 <div class="section-label">Unser Team</div>
                 <h2 class="section-title">Die Menschen hinter IEM</h2>
                 <p class="section-description">
-                    Vier engagierte Ingenieure, die ihre individuellen Stärken vereinen, um innovative Lösungen zu entwickeln. Gemeinsam bringen wir technische Exzellenz und kreative Vision zusammen.
+                    Vier engagierte HTL-Schüler, die ihre individuellen Stärken vereinen, um innovative Lösungen zu entwickeln.
                 </p>
             </div>
-            
+
             <div class="team-grid">
-                <div class="team-member leader">
-                    <div class="member-avatar">👨‍💼</div>
-                    <h3 class="member-name">Mehmet Saygin</h3>
-                    <p class="member-role">Projektleiter & Gründer</p>
-                    <p class="member-description">
-                        Als Initiator und treibende Kraft hinter IEM bringe ich meine Leidenschaft für Technologie und Innovation in jedes Projekt ein. Meine Vision: Ingenieurskunst und moderne Technologie vereinen, um außergewöhnliche Lösungen zu schaffen.
-                    </p>
-                    <ul class="member-responsibilities">
-                        <li class="responsibility-item">Webentwicklung & Programmierung</li>
-                        <li class="responsibility-item">UI/UX Design & User Experience</li>
-                        <li class="responsibility-item">Projektplanung & Koordination</li>
-                        <li class="responsibility-item">Automatisierungstechnik</li>
-                        <li class="responsibility-item">Artificial Intelligence Integration</li>
-                        <li class="responsibility-item">Business & Economics</li>
-                        <li class="responsibility-item">Teamzusammenstellung & Leadership</li>
-                    </ul>
+                <div class="team-row top">
+                    <div class="team-member leader">
+                        <div class="member-header">
+                            <div class="member-photo">👨‍💼</div>
+                            <div class="member-info">
+                                <h3 class="member-name">Mehmet Saygin</h3>
+                                <p class="member-role">Projektleiter</p>
+                                <div class="member-meta">
+                                    <div class="meta-info">📍 Dornbirn</div>
+                                    <div class="meta-info">🎓 5. Jahrgang HTL</div>
+                                    <div class="meta-info">💻 Full-Stack Developer</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="member-description">
+                            Als Initiator und treibende Kraft hinter IEM bringe ich meine Leidenschaft für Technologie und Innovation in jedes Projekt ein. Mit einem breiten Spektrum von Webentwicklung bis zu Business Intelligence gestalte ich die digitale Zukunft unserer Projekte.
+                        </p>
+                        <div class="member-details">
+                            <div class="detail-group">
+                                <h4>Hauptverantwortlichkeiten</h4>
+                                <ul class="member-responsibilities">
+                                    <li class="responsibility-item">Webentwicklung & Programmierung</li>
+                                    <li class="responsibility-item">UI/UX Design</li>
+                                    <li class="responsibility-item">Projektplanung & Koordination</li>
+                                    <li class="responsibility-item">AI Integration</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="team-member">
+                        <div class="member-header">
+                            <div class="member-photo">🎯</div>
+                            <div class="member-info">
+                                <h3 class="member-name">Luca Danner</h3>
+                                <p class="member-role">Mitglied</p>
+                                <div class="member-meta">
+                                    <div class="meta-info">📍 Dornbirn</div>
+                                    <div class="meta-info">🎓 5. Jahrgang HTL</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="member-description">
+                            Als Assistent unterstütze ich das Team bei der Koordination und Qualitätssicherung.
+                        </p>
+                        <div class="member-details">
+                            <div class="detail-group">
+                                <h4>Verantwortlichkeiten</h4>
+                                <ul class="member-responsibilities">
+                                    <li class="responsibility-item">Koordination</li>
+                                    <li class="responsibility-item">Dokumentation</li>
+                                    <li class="responsibility-item">QA</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="team-member">
-                    <div class="member-avatar">👨‍🔧</div>
-                    <h3 class="member-name">Tümer Can Öztürk</h3>
-                    <p class="member-role">Fertigungstechnik-Spezialist</p>
-                    <p class="member-description">
-                        Mit fundiertem Wissen in der Fertigungstechnik bringe ich Ideen in die physische Realität. Präzision und Innovation sind meine Leitprinzipien.
-                    </p>
-                    <ul class="member-responsibilities">
-                        <li class="responsibility-item">CNC Drehen & Fräsen</li>
-                        <li class="responsibility-item">CAD-Konstruktion</li>
-                        <li class="responsibility-item">3D-Druck & Rapid Prototyping</li>
-                        <li class="responsibility-item">Lasertechnik</li>
-                        <li class="responsibility-item">CAE-Simulation</li>
-                    </ul>
-                </div>
+                <div class="team-row bottom">
+                    <div class="team-member">
+                        <div class="member-header">
+                            <div class="member-photo">🔧</div>
+                            <div class="member-info">
+                                <h3 class="member-name">Tümer Can Öztürk</h3>
+                                <p class="member-role">Mitglied</p>
+                                <div class="member-meta">
+                                    <div class="meta-info">📍 Dornbirn</div>
+                                    <div class="meta-info">🎓 5. Jahrgang HTL</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="member-description">
+                            Meine Expertise liegt in der präzisen CNC-Fertigung und CAD-Konstruktion.
+                        </p>
+                        <div class="member-details">
+                            <div class="detail-group">
+                                <h4>Verantwortlichkeiten</h4>
+                                <ul class="member-responsibilities">
+                                    <li class="responsibility-item">CNC-Programmierung</li>
+                                    <li class="responsibility-item">CAD-Konstruktion</li>
+                                    <li class="responsibility-item">Fertigungsplanung</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="team-member">
-                    <div class="member-avatar">👨‍🔬</div>
-                    <h3 class="member-name">Fabian Venier</h3>
-                    <p class="member-role">Produktionsentwickler</p>
-                    <p class="member-description">
-                        Meine Expertise liegt in der Optimierung von Fertigungsprozessen. Ich sorge dafür, dass aus Konzepten effiziente Produktionslösungen werden.
-                    </p>
-                    <ul class="member-responsibilities">
-                        <li class="responsibility-item">CNC Drehen & Fräsen</li>
-                        <li class="responsibility-item">CAD-Modellierung</li>
-                        <li class="responsibility-item">3D-Druck Technologien</li>
-                        <li class="responsibility-item">Lasertechnik</li>
-                        <li class="responsibility-item">CAE-Analysen</li>
-                    </ul>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-avatar">👨‍🎓</div>
-                    <h3 class="member-name">Luca Danner</h3>
-                    <p class="member-role">Technischer Assistent</p>
-                    <p class="member-description">
-                        Als vielseitiger Techniker unterstütze ich das Team bei allen Herausforderungen. Meine Flexibilität ermöglicht es mir, dort einzuspringen, wo ich gebraucht werde.
-                    </p>
-                    <ul class="member-responsibilities">
-                        <li class="responsibility-item">CNC Drehen & Fräsen</li>
-                        <li class="responsibility-item">CAD-Unterstützung</li>
-                        <li class="responsibility-item">3D-Druck Assistenz</li>
-                        <li class="responsibility-item">Lasertechnik Support</li>
-                        <li class="responsibility-item">CAE-Mitarbeit</li>
-                        <li class="responsibility-item">Projektassistenz</li>
-                    </ul>
+                    <div class="team-member">
+                        <div class="member-header">
+                            <div class="member-photo">⚙️</div>
+                            <div class="member-info">
+                                <h3 class="member-name">Fabian Venier</h3>
+                                <p class="member-role">Mitglied</p>
+                                <div class="member-meta">
+                                    <div class="meta-info">📍 Dornbirn</div>
+                                    <div class="meta-info">🎓 5. Jahrgang HTL</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="member-description">
+                            Ich sorge für die professionelle Umsetzung in der Produktion.
+                        </p>
+                        <div class="member-details">
+                            <div class="detail-group">
+                                <h4>Verantwortlichkeiten</h4>
+                                <ul class="member-responsibilities">
+                                    <li class="responsibility-item">3D-Druck</li>
+                                    <li class="responsibility-item">Lasertechnik</li>
+                                    <li class="responsibility-item">Montage</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="stats-grid" id="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number" data-target="4" data-suffix="">0</div>
-                    <div class="stat-label">Teammitglieder</div>
+            <!-- Expertise Cards -->
+            <div class="section-header" style="margin-top: 6rem;">
+                <div class="section-label">Unsere Stärken</div>
+                <h2 class="section-title">Was uns ausmacht</h2>
+            </div>
+
+            <div class="expertise-grid">
+                <div class="expertise-card">
+                    <div class="expertise-header">
+                        <div class="expertise-avatar">💻</div>
+                        <div class="expertise-info">
+                            <h3>Mehmet</h3>
+                            <p>Der Visionär</p>
+                        </div>
+                    </div>
+                    <div class="expertise-content">
+                        <p class="expertise-quote">"Code ist Poesie, Design ist Kunst – ich liebe es, beides zu vereinen."</p>
+                        <div class="expertise-specialties">
+                            <span class="specialty-tag">🚀 Innovation</span>
+                            <span class="specialty-tag">🎨 Design</span>
+                            <span class="specialty-tag">🤖 AI</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" data-target="7" data-suffix="+">0+</div>
-                    <div class="stat-label">Kompetenzbereiche</div>
+
+                <div class="expertise-card">
+                    <div class="expertise-header">
+                        <div class="expertise-avatar">🔧</div>
+                        <div class="expertise-info">
+                            <h3>Tümer</h3>
+                            <p>Der Präzisionist</p>
+                        </div>
+                    </div>
+                    <div class="expertise-content">
+                        <p class="expertise-quote">"Perfektion liegt im Detail. Jeder Millimeter zählt."</p>
+                        <div class="expertise-specialties">
+                            <span class="specialty-tag">⚡ Präzision</span>
+                            <span class="specialty-tag">🎯 CAD</span>
+                            <span class="specialty-tag">⚙️ CNC</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" data-target="15" data-suffix="+">0+</div>
-                    <div class="stat-label">Technologien</div>
+
+                <div class="expertise-card">
+                    <div class="expertise-header">
+                        <div class="expertise-avatar">⚙️</div>
+                        <div class="expertise-info">
+                            <h3>Fabian</h3>
+                            <p>Der Macher</p>
+                        </div>
+                    </div>
+                    <div class="expertise-content">
+                        <p class="expertise-quote">"Von der Idee zum fertigen Produkt – ich sorge für Qualität."</p>
+                        <div class="expertise-specialties">
+                            <span class="specialty-tag">🛠️ Hands-On</span>
+                            <span class="specialty-tag">🏭 Fertigung</span>
+                            <span class="specialty-tag">✨ Qualität</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" data-target="100" data-suffix="%">0%</div>
-                    <div class="stat-label">Engagement</div>
+
+                <div class="expertise-card">
+                    <div class="expertise-header">
+                        <div class="expertise-avatar">🎯</div>
+                        <div class="expertise-info">
+                            <h3>Luca</h3>
+                            <p>Der Organisator</p>                        </div>
+                    </div>
+                    <div class="expertise-content">
+                        <p class="expertise-quote">"Erfolgreiche Projekte brauchen Struktur und Überblick."</p>
+                        <div class="expertise-specialties">
+                            <span class="specialty-tag">📋 Organisation</span>
+                            <span class="specialty-tag">🤝 Koordination</span>
+                            <span class="specialty-tag">✅ QA</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="journey" class="timeline-section">
+    <!-- ==================== SYNERGY ==================== -->
+    <section id="synergy" class="synergy-section">
         <div class="container">
             <div class="section-header">
-                <div class="section-label">Unsere Reise</div>
-                <h2 class="section-title">Wie alles begann</h2>
+                <div class="section-label">Team Dynamik</div>
+                <h2 class="section-title">Wie wir zusammenarbeiten</h2>
                 <p class="section-description">
-                    Von der ersten Idee bis zum erfolgreichen Team – unsere Geschichte ist geprägt von Leidenschaft, harter Arbeit und dem Streben nach technischer Exzellenz.
+                    Unsere Stärke liegt in der Synergie unserer unterschiedlichen Fähigkeiten. Von der ersten Idee bis zum fertigen Produkt arbeiten wir Hand in Hand.
                 </p>
             </div>
 
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-date">Phase 1</div>
-                        <h3 class="timeline-title">Die Idee</h3>
-                        <p class="timeline-description">
-                            Mehmet Saygin erkennt das Potenzial, verschiedene Ingenieursdisziplinen in einem innovativen Projekt zu vereinen. Die Vision: Eine Plattform, die technische Exzellenz sichtbar macht.
-                        </p>
+            <div class="synergy-container" id="synergy-container">
+                <div class="synergy-center">
+                    IEM CORE
+                    <div class="synergy-center-subtitle">KOLLABORATION</div>
+                </div>
+            </div>
+
+            <div class="section-header" style="margin-top: 5rem; margin-bottom: 3rem;">
+                <h3 class="section-title" style="font-size: 2.5rem;">Unser Workflow</h3>
+                <p class="section-description">So läuft ein typisches Projekt bei IEM ab</p>
+            </div>
+
+            <div class="workflow-grid">
+                <div class="workflow-step">
+                    <div class="workflow-number">1</div>
+                    <h3 class="workflow-title">Ideenfindung & Konzeption</h3>
+                    <p class="workflow-description">Brainstorming im Team, Machbarkeitsanalyse und Definition der Projektziele.</p>
+                    <div class="workflow-participants">
+                        <div class="workflow-participants-title">Hauptakteure</div>
+                        <div class="workflow-badges">
+                            <span class="workflow-badge">Mehmet</span>
+                            <span class="workflow-badge">Gesamtes Team</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-date">Phase 2</div>
-                        <h3 class="timeline-title">Teambildung</h3>
-                        <p class="timeline-description">
-                            Die richtigen Menschen finden sich zusammen. Tümer Can, Fabian und Luca schließen sich dem Projekt an, jeder bringt einzigartige Fähigkeiten und Perspektiven mit.
-                        </p>
+                <div class="workflow-step">
+                    <div class="workflow-number">2</div>
+                    <h3 class="workflow-title">Design & Entwicklung</h3>
+                    <p class="workflow-description">Parallele Arbeit an digitalen und physischen Komponenten.</p>
+                    <div class="workflow-participants">
+                        <div class="workflow-participants-title">Hauptakteure</div>
+                        <div class="workflow-badges">
+                            <span class="workflow-badge">Mehmet</span>
+                            <span class="workflow-badge">Tümer</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-date">Phase 3</div>
-                        <h3 class="timeline-title">Entwicklung</h3>
-                        <p class="timeline-description">
-                            Intensive Arbeitsphasen prägen diese Zeit. Die Webseite nimmt Gestalt an, während parallel innovative Projekte in verschiedenen Bereichen umgesetzt werden.
-                        </p>
+                <div class="workflow-step">
+                    <div class="workflow-number">3</div>
+                    <h3 class="workflow-title">Prototyping & Testing</h3>
+                    <p class="workflow-description">Erste Prototypen werden gefertigt und getestet.</p>
+                    <div class="workflow-participants">
+                        <div class="workflow-participants-title">Hauptakteure</div>
+                        <div class="workflow-badges">
+                            <span class="workflow-badge">Tümer</span>
+                            <span class="workflow-badge">Fabian</span>
+                            <span class="workflow-badge">Luca</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-date">Phase 4</div>
-                        <h3 class="timeline-title">Launch & Zukunft</h3>
-                        <p class="timeline-description">
-                            IEM geht online und präsentiert die Früchte monatelanger Arbeit. Der Grundstein für zukünftige Innovationen und Projekte ist gelegt.
-                        </p>
+                <div class="workflow-step">
+                    <div class="workflow-number">4</div>
+                    <h3 class="workflow-title">Integration & Assembly</h3>
+                    <p class="workflow-description">Software trifft Hardware. Die Komponenten werden zusammengeführt.</p>
+                    <div class="workflow-participants">
+                        <div class="workflow-participants-title">Hauptakteure</div>
+                        <div class="workflow-badges">
+                            <span class="workflow-badge">Mehmet</span>
+                            <span class="workflow-badge">Fabian</span>
+                        </div>
                     </div>
+                </div>
+
+                <div class="workflow-step">
+                    <div class="workflow-number">5</div>
+                    <h3 class="workflow-title">Optimierung</h3>
+                    <p class="workflow-description">Performance-Optimierung und letzte Anpassungen.</p>
+                    <div class="workflow-participants">
+                        <div class="workflow-participants-title">Hauptakteure</div>
+                        <div class="workflow-badges">
+                            <span class="workflow-badge">Gesamtes Team</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="workflow-step">
+                    <div class="workflow-number">6</div>
+                    <h3 class="workflow-title">Dokumentation</h3>
+                    <p class="workflow-description">Umfassende Dokumentation und Präsentationsvorbereitung.</p>
+                    <div class="workflow-participants">
+                        <div class="workflow-participants-title">Hauptakteure</div>
+                        <div class="workflow-badges">
+                            <span class="workflow-badge">Luca</span>
+                            <span class="workflow-badge">Mehmet</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collab-metrics">
+                <div class="metric-item">
+                    <div class="metric-icon">🤝</div>
+                    <div class="metric-value">100%</div>
+                    <div class="metric-label">Team Sync</div>
+                    <p class="metric-description">Perfekte Abstimmung durch regelmäßige Meetings</p>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-icon">⚡</div>
+                    <div class="metric-value">24/7</div>
+                    <div class="metric-label">Verfügbarkeit</div>
+                    <p class="metric-description">Immer erreichbar durch Gruppenchat</p>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-icon">🎯</div>
+                    <div class="metric-value">4×</div>
+                    <div class="metric-label">Synergieeffekt</div>
+                    <p class="metric-description">Gemeinsam mehr als die Summe der Einzelleistungen</p>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-icon">🚀</div>
+                    <div class="metric-value">∞</div>
+                    <div class="metric-label">Innovation</div>
+                    <p class="metric-description">Verschiedene Perspektiven fördern Kreativität</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="skills-section">
-        <div class="container">
-            <div class="section-header">
-                <div class="section-label">Unsere Expertise</div>
-                <h2 class="section-title">Kompetenzbereiche</h2>
-                <p class="section-description">
-                    Durch die Kombination unserer individuellen Stärken decken wir ein breites Spektrum modernster Technologien und Fertigungsmethoden ab.
-                </p>
-            </div>
-
-            <div class="skills-grid">
-                <div class="skill-card">
-                    <div class="skill-icon">💻</div>
-                    <h3>Webentwicklung</h3>
-                    <p>
-                        Moderne, responsive Webseiten mit innovativen Technologien. Von der Konzeption über das Design bis zur Implementierung.
-                    </p>
-                </div>
-
-                <div class="skill-card">
-                    <div class="skill-icon">🔧</div>
-                    <h3>CNC-Fertigung</h3>
-                    <p>
-                        Präzisionsfertigung mit modernsten CNC-Maschinen. Drehen und Fräsen komplexer Bauteile mit höchster Genauigkeit.
-                    </p>
-                </div>
-
-                <div class="skill-card">
-                    <div class="skill-icon">🖨️</div>
-                    <h3>3D-Druck</h3>
-                    <p>
-                        Rapid Prototyping und additive Fertigung. Von der Idee zum physischen Prototyp in kürzester Zeit.
-                    </p>
-                </div>
-
-                <div class="skill-card">
-                    <div class="skill-icon">⚡</div>
-                    <h3>Lasertechnik</h3>
-                    <p>
-                        Hochpräzises Lasercutting und -gravieren. Bearbeitung verschiedenster Materialien mit perfekten Ergebnissen.
-                    </p>
-                </div>
-
-                <div class="skill-card">
-                    <div class="skill-icon">🤖</div>
-                    <h3>Automatisierung</h3>
-                    <p>
-                        Intelligente Automatisierungslösungen für Industrie 4.0. Von SPS-Programmierung bis zur Robotik.
-                    </p>
-                </div>
-
-                <div class="skill-card">
-                    <div class="skill-icon">🧠</div>
-                    <h3>Künstliche Intelligenz</h3>
-                    <p>
-                        Integration von AI-Technologien in praktische Anwendungen. Machine Learning für intelligente Systeme.
-                    </p>
-                </div>
-
-                <div class="skill-card">
-                    <div class="skill-icon">📐</div>
-                    <h3>CAD/CAE</h3>
-                    <p>
-                        Professionelle 3D-Konstruktion und Simulation. Von der Entwicklung bis zur Validierung komplexer Designs.
-                    </p>
-                </div>
-
-                <div class="skill-card">
-                    <div class="skill-icon">📊</div>
-                    <h3>Business & Economics</h3>
-                    <p>
-                        Wirtschaftliche Optimierung technischer Projekte. Verbindung von Engineering Excellence mit Business Intelligence.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
+    <!-- ==================== FOOTER ==================== -->
     <footer>
         <div class="footer-content">
             <div class="footer-column">
                 <h4>IEM Team</h4>
                 <ul>
-                    <li><a href="#">Startseite</a></li>
-                    <li><a href="#">Projekte</a></li>
-                    <li><a href="#">Kontakt</a></li>
+                    <li><a href="{{ url_for('ueber_uns') }}">Über uns</a></li>
+                    <li><a href="{{ url_for('home') }}">Startseite</a></li>
                 </ul>
             </div>
             <div class="footer-column">
-                <h4>Kompetenzen</h4>
+                <h4>Bereiche</h4>
                 <ul>
-                    <li><a href="#">Webentwicklung</a></li>
-                    <li><a href="#">CNC-Fertigung</a></li>
-                    <li><a href="#">Automatisierung</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h4>Technologien</h4>
-                <ul>
-                    <li><a href="#">3D-Druck</a></li>
-                    <li><a href="#">Lasertechnik</a></li>
-                    <li><a href="#">CAD/CAE</a></li>
+                    <li><a href="{{ url_for('drehen_info') }}">Drehen / Fräsen</a></li>
+                    <li><a href="{{ url_for('cad_info') }}">CAD</a></li>
+                    <li><a href="{{ url_for('Drei_D_Druck_info') }}">3D-Druck</a></li>
+                    <li><a href="{{ url_for('cae_info') }}">CAE</a></li>
                 </ul>
             </div>
             <div class="footer-column">
                 <h4>Kontakt</h4>
                 <ul>
-                    <li>mehmet.saygin@student.htldornbirn.at</li>
-                    <li>+43 5572 58900</li>
+                    <li>mehmet.saygin@student.htldornbirn.com</li>
+                    <li>+43 999 99999</li>
                     <li>Höchsterstraße 73, 6850 Dornbirn</li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>© 2025 IEM Team HTL Dornbirn. Engineering Excellence.</p>
+            <p>© 2025 IEM HTL Dornbirn. Gemeinsam mehr.</p>
         </div>
     </footer>
 
-    <script src="../static/js/ueber_uns_info.js"></script>
+    <script src="{{ url_for('static', filename='js/ueber_uns_info.js') }}"></script>
 </body>
 </html>

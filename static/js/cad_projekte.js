@@ -18,7 +18,8 @@ window.addEventListener('DOMContentLoaded', () => {
         publicKey: 'IIsxauIOXV1SLgD-O'
     };
     
-   const AUTHORIZED_EMAILS = [
+    // Manuelle Whitelist für Ausnahmen (z.B. Gmail, Direktor ohne Punkt)
+    const AUTHORIZED_EMAILS = [
         'mehmet.saygin@student.htldornbirn.at',
         'msaygin29@gmail.com',
         'direktor@htldornbirn.at',
@@ -35,9 +36,26 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     
     function isEmailAuthorized(email) {
-        return AUTHORIZED_EMAILS.some(
-            authorizedEmail => authorizedEmail.toLowerCase() === email.toLowerCase()
-        );
+        const trimmed = email.toLowerCase().trim();
+        
+        // 1. Prüfe ob in der manuellen Whitelist
+        if (AUTHORIZED_EMAILS.some(e => e.toLowerCase() === trimmed)) {
+            return true;
+        }
+        
+        // 2. Prüfe Muster: vorname.nachname@htldornbirn.at (Lehrer)
+        const htlPattern = /^[a-zäöüß]+\.[a-zäöüß]+@htldornbirn\.at$/i;
+        if (htlPattern.test(trimmed)) {
+            return true;
+        }
+        
+        // 3. Prüfe auch student E-Mails: vorname.nachname@student.htldornbirn.at
+        const studentPattern = /^[a-zäöüß]+\.[a-zäöüß]+@student\.htldornbirn\.at$/i;
+        if (studentPattern.test(trimmed)) {
+            return true;
+        }
+        
+        return false;
     }
     
     function generateVerificationCode() {
@@ -326,7 +344,7 @@ window.addEventListener('DOMContentLoaded', () => {
             }
             
             if (!isEmailAuthorized(trimmedEmail)) {
-                setError('Diese E-Mail-Adresse ist nicht für den Import berechtigt.');
+                setError('Diese E-Mail-Adresse ist nicht berechtigt. Verwenden Sie eine HTL Dornbirn E-Mail (vorname.nachname@htldornbirn.at).');
                 return;
             }
             
@@ -425,9 +443,9 @@ window.addEventListener('DOMContentLoaded', () => {
                 React.createElement('div', { className: 'modal-body' },
                     React.createElement('div', { className: 'login-header' },
                         React.createElement('div', { className: 'lock-icon' }, '🔐'),
-                        React.createElement('h2', null, step === 'email' ? 'Lehrer-Anmeldung' : 'Code eingeben'),
+                        React.createElement('h2', null, step === 'email' ? 'Anmeldung' : 'Code eingeben'),
                         React.createElement('p', null, step === 'email' 
-                            ? 'Melden Sie sich mit Ihrer autorisierten E-Mail an.'
+                            ? 'Melden Sie sich mit Ihrer HTL Dornbirn E-Mail an.'
                             : 'Geben Sie den 6-stelligen Code ein.')
                     ),
                     
@@ -495,7 +513,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     ),
                     
                     React.createElement('div', { className: 'login-footer' },
-                        React.createElement('p', null, 'Nur autorisierte Lehrkräfte können Projekte importieren.')
+                        React.createElement('p', null, 'Alle HTL Dornbirn Mitarbeiter können sich anmelden.')
                     )
                 )
             )
@@ -999,7 +1017,7 @@ window.addEventListener('DOMContentLoaded', () => {
                             React.createElement('div', { className: 'avatar' }, userInitials),
                             React.createElement('div', { className: 'user-info' },
                                 React.createElement('span', { className: 'user-name' }, userName),
-                                React.createElement('span', { className: 'user-role' }, 'Lehrkraft')
+                                React.createElement('span', { className: 'user-role' }, 'Angemeldet')
                             ),
                             React.createElement('button', {
                                 className: 'logout-btn',
@@ -1053,9 +1071,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
         const categories = ['Alle', 'Fusion 360', 'SolidWorks', 'Inventor'];
         
-        const filteredProjects = activeFilter === 'Alle' 
+        // ========== SPERRVERMERK FILTER ==========
+        // Wenn NICHT angemeldet: Nur öffentliche Projekte zeigen
+        // Wenn angemeldet: Alle Projekte zeigen
+        const visibleProjectsForUser = isAuthenticated 
             ? projects 
-            : projects.filter(p => p.category === activeFilter);
+            : projects.filter(p => p.visibility !== 'restricted');
+        
+        const filteredProjects = activeFilter === 'Alle' 
+            ? visibleProjectsForUser 
+            : visibleProjectsForUser.filter(p => p.category === activeFilter);
 
         const addProject = async (newProject) => {
             try {
@@ -1172,6 +1197,9 @@ window.addEventListener('DOMContentLoaded', () => {
             await reloadProjects("");
         };
 
+        // Stats - zeige korrekte Anzahl basierend auf Auth-Status
+        const publicProjectCount = projects.filter(p => p.visibility !== 'restricted').length;
+
         return React.createElement(React.Fragment, null,
             React.createElement(Navigation, { 
                 onImportClick: handleImportClick,
@@ -1189,7 +1217,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     React.createElement('p', { className: 'hero-subtitle' }, 'Computer Aided Design'),
                     React.createElement('div', { className: 'stats-bar' },
                         React.createElement('div', { className: 'stat-item' },
-                            React.createElement('div', { className: 'stat-number' }, projects.length),
+                            React.createElement('div', { className: 'stat-number' }, isAuthenticated ? projects.length : publicProjectCount),
                             React.createElement('div', { className: 'stat-label' }, 'Projekte')
                         ),
                         React.createElement('div', { className: 'stat-item' },

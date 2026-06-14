@@ -12,7 +12,8 @@ window.addEventListener('DOMContentLoaded', () => {
         publicKey: 'IIsxauIOXV1SLgD-O'
     };
 
-   const AUTHORIZED_EMAILS = [
+    // Manuelle Whitelist für Ausnahmen (z.B. Gmail, Direktor ohne Punkt)
+    const AUTHORIZED_EMAILS = [
         'mehmet.saygin@student.htldornbirn.at',
         'msaygin29@gmail.com',
         'direktor@htldornbirn.at',
@@ -33,9 +34,26 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     function isEmailAuthorized(email) {
-        return AUTHORIZED_EMAILS.some(
-            authorizedEmail => authorizedEmail.toLowerCase() === email.toLowerCase()
-        );
+        const trimmed = email.toLowerCase().trim();
+        
+        // 1. Prüfe ob in der manuellen Whitelist
+        if (AUTHORIZED_EMAILS.some(e => e.toLowerCase() === trimmed)) {
+            return true;
+        }
+        
+        // 2. Prüfe Muster: vorname.nachname@htldornbirn.at (Lehrer)
+        const htlPattern = /^[a-zäöüß]+\.[a-zäöüß]+@htldornbirn\.at$/i;
+        if (htlPattern.test(trimmed)) {
+            return true;
+        }
+        
+        // 3. Prüfe auch student E-Mails: vorname.nachname@student.htldornbirn.at
+        const studentPattern = /^[a-zäöüß]+\.[a-zäöüß]+@student\.htldornbirn\.at$/i;
+        if (studentPattern.test(trimmed)) {
+            return true;
+        }
+        
+        return false;
     }
 
     function generateVerificationCode() {
@@ -328,7 +346,7 @@ window.addEventListener('DOMContentLoaded', () => {
             }
             
             if (!isEmailAuthorized(trimmedEmail)) {
-                setError('Diese E-Mail-Adresse ist nicht für den Import berechtigt.');
+                setError('Diese E-Mail-Adresse ist nicht für den Import berechtigt. Verwenden Sie eine HTL Dornbirn E-Mail (vorname.nachname@htldornbirn.at).');
                 return;
             }
             
@@ -440,11 +458,11 @@ window.addEventListener('DOMContentLoaded', () => {
                             } 
                         }, '🔐'),
                         React.createElement('h2', { style: { color: 'var(--dark)', marginBottom: '0.5rem' } }, 
-                            step === 'email' ? 'Lehrer-Anmeldung' : 'Code eingeben'
+                            step === 'email' ? 'Anmeldung' : 'Code eingeben'
                         ),
                         React.createElement('p', { style: { color: 'var(--text-muted)' } },
                             step === 'email' 
-                                ? 'Melden Sie sich mit Ihrer autorisierten E-Mail an.'
+                                ? 'Melden Sie sich mit Ihrer HTL Dornbirn E-Mail an.'
                                 : 'Geben Sie den 6-stelligen Code ein.'
                         )
                     ),
@@ -597,7 +615,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         } 
                     },
                         React.createElement('p', { style: { color: 'var(--text-muted)', fontSize: '0.8rem' } },
-                            'Nur autorisierte Lehrkräfte können Projekte importieren.'
+                            'Alle HTL Dornbirn Mitarbeiter können sich anmelden.'
                         )
                     )
                 )
@@ -1228,10 +1246,17 @@ window.addEventListener('DOMContentLoaded', () => {
 
             reloadProjects(email);
         }, []);
+
+        // ========== SPERRVERMERK FILTER ==========
+        // Wenn NICHT angemeldet: Nur öffentliche Projekte zeigen
+        // Wenn angemeldet: Alle Projekte zeigen
+        const visibleProjectsForUser = isAuthenticated 
+            ? projects 
+            : projects.filter(p => p.visibility !== 'restricted');
         
         const filteredProjects = activeFilter === 'Alle' 
-            ? projects 
-            : projects.filter(p => p.category === activeFilter);
+            ? visibleProjectsForUser 
+            : visibleProjectsForUser.filter(p => p.category === activeFilter);
 
         const displayedProjects = filteredProjects.slice(0, visibleProjects);
 
@@ -1362,6 +1387,9 @@ window.addEventListener('DOMContentLoaded', () => {
         const userName = userEmail ? getNameFromEmail(userEmail) : '';
         const userInitials = userName ? userName.split(' ').map(n => n[0]).join('').toUpperCase() : '';
 
+        // Zähle öffentliche Projekte für Stats
+        const publicProjectCount = projects.filter(p => p.visibility !== 'restricted').length;
+
         return React.createElement(React.Fragment, null,
             // Navigation
             React.createElement('nav', { id: 'navbar' },
@@ -1406,7 +1434,7 @@ window.addEventListener('DOMContentLoaded', () => {
                                 }, userInitials),
                                 React.createElement('div', { style: { display: 'flex', flexDirection: 'column' } },
                                     React.createElement('span', { style: { color: 'var(--dark)', fontSize: '0.85rem', fontWeight: '500' } }, userName),
-                                    React.createElement('span', { style: { color: 'var(--brown)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em' } }, 'Lehrkraft')
+                                    React.createElement('span', { style: { color: 'var(--brown)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em' } }, 'Angemeldet')
                                 ),
                                 React.createElement('button', {
                                     onClick: handleLogout,
@@ -1435,7 +1463,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     React.createElement('p', { className: 'hero-subtitle' }, 'Präzises CO2-Lasercutting für Holz'),
                     React.createElement('div', { className: 'stats-bar' },
                         React.createElement('div', { className: 'stat-item' },
-                            React.createElement('div', { className: 'stat-number' }, projects.length),
+                            React.createElement('div', { className: 'stat-number' }, isAuthenticated ? projects.length : publicProjectCount),
                             React.createElement('div', { className: 'stat-label' }, 'Projekte')
                         ),
                         React.createElement('div', { className: 'stat-item' },

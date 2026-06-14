@@ -11,13 +11,14 @@ const EMAILJS_CONFIG = {
     publicKey: 'IIsxauIOXV1SLgD-O'
 };
 
+// Manuelle Whitelist für Ausnahmen (z.B. Gmail, Direktor ohne Punkt)
 const AUTHORIZED_EMAILS = [
-        'mehmet.saygin@student.htldornbirn.at',
-        'msaygin29@gmail.com',
-        'direktor@htldornbirn.at',
-        'dominik.ferles@student.htldornbirn.at',
-        'kenan.bayar@htldornbirn.at'
-    ];
+    'mehmet.saygin@student.htldornbirn.at',
+    'msaygin29@gmail.com',
+    'direktor@htldornbirn.at',
+    'dominik.ferles@student.htldornbirn.at',
+    'kenan.bayar@htldornbirn.at'
+];
 
 // ============================================
 // AUTH SYSTEM
@@ -28,9 +29,26 @@ if (window.emailjs) {
 }
 
 function isEmailAuthorized(email) {
-    return AUTHORIZED_EMAILS.some(
-        authorizedEmail => authorizedEmail.toLowerCase() === email.toLowerCase()
-    );
+    const trimmed = email.toLowerCase().trim();
+    
+    // 1. Prüfe ob in der manuellen Whitelist
+    if (AUTHORIZED_EMAILS.some(e => e.toLowerCase() === trimmed)) {
+        return true;
+    }
+    
+    // 2. Prüfe Muster: vorname.nachname@htldornbirn.at (Lehrer)
+    const htlPattern = /^[a-zäöüß]+\.[a-zäöüß]+@htldornbirn\.at$/i;
+    if (htlPattern.test(trimmed)) {
+        return true;
+    }
+    
+    // 3. Prüfe auch student E-Mails: vorname.nachname@student.htldornbirn.at
+    const studentPattern = /^[a-zäöüß]+\.[a-zäöüß]+@student\.htldornbirn\.at$/i;
+    if (studentPattern.test(trimmed)) {
+        return true;
+    }
+    
+    return false;
 }
 
 function generateVerificationCode() {
@@ -315,7 +333,7 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
         }
         
         if (!isEmailAuthorized(trimmedEmail)) {
-            setError('Diese E-Mail-Adresse ist nicht für den Import berechtigt.');
+            setError('Diese E-Mail-Adresse ist nicht für den Import berechtigt. Verwenden Sie eine HTL Dornbirn E-Mail (vorname.nachname@htldornbirn.at).');
             return;
         }
         
@@ -410,9 +428,9 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                 <div className="modal-body">
                     <div className="login-header">
                         <div className="lock-icon">🔐</div>
-                        <h2>{step === 'email' ? 'Lehrer-Anmeldung' : 'Code eingeben'}</h2>
+                        <h2>{step === 'email' ? 'Anmeldung' : 'Code eingeben'}</h2>
                         <p>{step === 'email' 
-                            ? 'Melden Sie sich mit Ihrer autorisierten E-Mail an.'
+                            ? 'Melden Sie sich mit Ihrer HTL Dornbirn E-Mail an.'
                             : 'Geben Sie den 6-stelligen Code ein.'}
                         </p>
                     </div>
@@ -482,7 +500,7 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                     )}
                     
                     <div className="login-footer">
-                        <p>Nur autorisierte Lehrkräfte können Projekte importieren.</p>
+                        <p>Alle HTL Dornbirn Mitarbeiter können sich anmelden.</p>
                     </div>
                 </div>
             </div>
@@ -1068,10 +1086,17 @@ function App() {
     }, []);
 
     const categories = ['Alle', 'CNC-Drehen', 'CNC-Fräsen'];
+
+    // ========== SPERRVERMERK FILTER ==========
+    // Wenn NICHT angemeldet: Nur öffentliche Projekte zeigen
+    // Wenn angemeldet: Alle Projekte zeigen
+    const visibleProjectsForUser = isAuthenticated 
+        ? projects 
+        : projects.filter(p => p.visibility !== 'restricted');
     
     const filteredProjects = activeFilter === 'Alle' 
-        ? projects 
-        : projects.filter(p => p.category === activeFilter);
+        ? visibleProjectsForUser 
+        : visibleProjectsForUser.filter(p => p.category === activeFilter);
 
     // ========== CRUD Operations ==========
     const addProject = async (newProject) => {
@@ -1192,6 +1217,9 @@ function App() {
     const userName = userEmail ? getNameFromEmail(userEmail) : '';
     const userInitials = userName ? userName.split(' ').map(n => n[0]).join('').toUpperCase() : '';
 
+    // Zähle öffentliche Projekte für Stats
+    const publicProjectCount = projects.filter(p => p.visibility !== 'restricted').length;
+
     return (
         <>
             <nav id="navbar">
@@ -1212,7 +1240,7 @@ function App() {
                                     <div className="avatar">{userInitials}</div>
                                     <div className="user-info">
                                         <span className="user-name">{userName}</span>
-                                        <span className="user-role">Lehrkraft</span>
+                                        <span className="user-role">Angemeldet</span>
                                     </div>
                                     <button className="logout-btn" onClick={handleLogout} title="Abmelden">⏻</button>
                                 </div>
@@ -1233,7 +1261,7 @@ function App() {
                     </p>
                     <div className="stats-bar">
                         <div className="stat-item">
-                            <div className="stat-number">{projects.length}</div>
+                            <div className="stat-number">{isAuthenticated ? projects.length : publicProjectCount}</div>
                             <div className="stat-label">Projekte</div>
                         </div>
                         <div className="stat-item">
